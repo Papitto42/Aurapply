@@ -1,0 +1,56 @@
+# Dependencies
+node_modules/
+**/node_modules/
+/.pnp
+.pnp.js
+
+# Testing
+/coverage
+*.log
+
+# Production builds
+frontend/build/
+frontend/dist/
+
+# Environment variables (IMPORTANT - keep secrets private!)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+backend/.env
+frontend/.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Uploads and user data (keep private!)
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# MongoDB data
+*.db
+*.sqlite
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# Package manager locks (optional - some teams commit these)
+# package-lock.json
+# yarn.lock
+
