@@ -1,0 +1,303 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg-depth: #050505;
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --primary-accent: #FF4D00; /* Primary Orange */
+    --trust-blue: #0066FF; /* Trust & Professionalism */
+    --success-green: #10B981; /* Success & Growth */
+  }
+
+  body {
+    @apply bg-[#050505] text-[#E0E0E0] overflow-x-hidden antialiased;
+    font-family: 'Inter', sans-serif; /* Ensure you have a clean font loaded */
+  }
+}
+
+.glass-panel {
+  @apply bg-[#0A0A0A]/80 backdrop-blur-xl border border-white/5 shadow-2xl;
+}
+
+/* Sidebar Active State */
+.nav-item.active {
+  @apply bg-white text-black font-semibold shadow-[0_0_15px_rgba(255,255,255,0.3)];
+}
+
+.nav-item.inactive {
+  @apply text-gray-500 hover:text-white hover:bg-white/5;
+}
+
+/* --- UTILITIES --- */
+
+/* 1. The Noise Texture (Film Grain) */
+.bg-noise {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 50;
+}
+
+/* 2. High-End Glassmorphism */
+.glass-card {
+  background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+}
+
+/* 3. The "Solar" Glow Text */
+.text-glow {
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+}
+
+/* 4. Monochrome Logos */
+.mono-logo {
+  filter: grayscale(100%) brightness(200%);
+  opacity: 0.5;
+  transition: all 0.3s ease;
+}
+.mono-logo:hover {
+  filter: grayscale(0%) brightness(100%); /* Color on hover */
+  opacity: 1;
+}
+
+/* Hide Scrollbar */
+::-webkit-scrollbar { display: none; }
+
+/* Custom Scrollbar (fallback for browsers that need it) */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #050505; }
+::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: #555; }
+
+/* Border Beam Animation for Buttons */
+@keyframes border-beam {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
+  }
+}
+
+.border-beam {
+  position: relative;
+  overflow: hidden;
+}
+
+.border-beam::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 77, 0, 0.8),
+    transparent
+  );
+  background-size: 200% 100%;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: border-beam 2s linear infinite;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.border-beam:hover::before {
+  opacity: 1;
+}
+
+/* Text Clip Animation - Letter by Letter */
+.text-clip-container {
+  display: inline-block;
+  overflow: hidden;
+}
+
+.text-clip-letter {
+  display: inline-block;
+  transform: translateY(100%);
+  animation: textClipSlideDown 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes textClipSlideDown {
+  from {
+    transform: translateY(100%);
+    clip-path: inset(100% 0 0 0);
+  }
+  to {
+    transform: translateY(0);
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+/* Typewriter Effect with Blinking Cursor */
+.typewriter-text {
+  display: inline-block;
+  color: white !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  position: relative;
+  z-index: 1;
+  /* Ensure text is always visible */
+  min-width: 0;
+  white-space: pre-wrap;
+}
+
+/* Ensure parent doesn't hide it */
+h1 .typewriter-text,
+.typewriter-text {
+  color: rgb(255, 255, 255) !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.typewriter-cursor {
+  display: inline-block;
+  color: #FF4D00 !important;
+  font-weight: 300;
+  margin-left: 2px;
+  opacity: 1;
+  animation: blinkCursor 1s step-end infinite;
+  vertical-align: baseline;
+}
+
+@keyframes blinkCursor {
+  0%, 50% {
+    opacity: 1;
+  }
+  51%, 100% {
+    opacity: 0;
+  }
+}
+
+/* Marquee Animation with Alpha Mask */
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.marquee-container {
+  position: relative;
+  overflow: hidden;
+  mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 10%,
+    black 90%,
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 10%,
+    black 90%,
+    transparent 100%
+  );
+}
+
+.marquee-content {
+  display: flex;
+  animation: marquee 30s linear infinite;
+  will-change: transform;
+}
+
+.marquee-content:hover {
+  animation-play-state: paused;
+}
+
+/* Clip Path Column Animation */
+@keyframes clipColumn {
+  0% {
+    clip-path: inset(0 100% 0 0);
+  }
+  100% {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+.clip-column {
+  animation: clipColumn 1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Flashlight Effect */
+.flashlight-effect {
+  position: relative;
+  overflow: hidden;
+}
+
+.flashlight-border {
+  position: relative;
+}
+
+.flashlight-border::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: radial-gradient(
+    circle 150px at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    rgba(255, 77, 0, 0.5) 0%,
+    rgba(255, 77, 0, 0.2) 30%,
+    transparent 60%
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 1;
+}
+
+.flashlight-border:hover::before {
+  opacity: 1;
+}
+
+/* Parallelogram Button Styles */
+.parallelogram-button {
+  position: relative;
+  display: inline-block;
+  transform: skewX(-12deg);
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.parallelogram-button-content {
+  transform: skewX(12deg);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.parallelogram-button-white {
+  background: white;
+  color: black;
+}
+
+.parallelogram-button-outlined {
+  background: black;
+  border: 2px solid;
+  color: inherit;
+}
+
+.parallelogram-button:hover {
+  transform: skewX(-12deg) scale(1.05);
+}
