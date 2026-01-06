@@ -3,6 +3,9 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion, useScroll, useTransform, useInView } from 'framer-motion';
 import { Icon } from '@iconify/react';
 import { AuthContext } from '../App';
+import ThemeToggle from '../components/ThemeToggle';
+import ScatterGrid from '../components/ScatterGrid';
+import { AuroraAtomIcon } from '../components/Logo';
 
 // Text Clip Animation Component
 function AnimatedText({ text, delay = 0, className = '' }) {
@@ -29,7 +32,6 @@ function AnimatedText({ text, delay = 0, className = '' }) {
 // Typewriter Effect Component with Infinite Loop - Cycles through multiple texts
 function TypewriterText({ texts, className = '', speed = 80, delay = 0, deleteSpeed = 50, pauseTime = 2000 }) {
   const [displayedText, setDisplayedText] = useState('');
-  const [currentTextIndex, setCurrentTextIndex] = useState(0);
   const mountedRef = useRef(true);
   const timeoutRefs = useRef({ timeoutId: null, startDelayId: null });
 
@@ -80,7 +82,6 @@ function TypewriterText({ texts, className = '', speed = 80, delay = 0, deleteSp
         // Finished deleting, move to next text and start typing
         isDeletingState = false;
         textIndex = (textIndex + 1) % (Array.isArray(texts) ? texts.length : 1);
-        setCurrentTextIndex(textIndex);
         currentIndex = 0;
         timeoutRefs.current.timeoutId = setTimeout(() => {
           if (mountedRef.current) {
@@ -100,11 +101,12 @@ function TypewriterText({ texts, className = '', speed = 80, delay = 0, deleteSp
     // Cleanup function
     return () => {
       mountedRef.current = false;
-      if (timeoutRefs.current.startDelayId) {
-        clearTimeout(timeoutRefs.current.startDelayId);
+      const timeouts = timeoutRefs.current;
+      if (timeouts.startDelayId) {
+        clearTimeout(timeouts.startDelayId);
       }
-      if (timeoutRefs.current.timeoutId) {
-        clearTimeout(timeoutRefs.current.timeoutId);
+      if (timeouts.timeoutId) {
+        clearTimeout(timeouts.timeoutId);
       }
     };
   }, [texts, speed, delay, deleteSpeed, pauseTime]);
@@ -159,9 +161,9 @@ function HeroRotatingView() {
   }, [isPaused]);
 
   const dashboardView = (
-    <div className="relative rounded-3xl border border-white/20 bg-gradient-to-br from-orange-500/15 via-[#151515] to-blue-500/15 backdrop-blur-2xl overflow-hidden shadow-2xl group hover:border-orange-500/40 transition-all aspect-[4/3]">
+    <div className="relative rounded-3xl border backdrop-blur-2xl overflow-hidden shadow-2xl group hover:border-orange-500/40 transition-all aspect-[4/3] border-gray-200/50 bg-gradient-to-br from-orange-500/10 via-white to-blue-500/10 dark:border-white/20 dark:from-orange-500/15 dark:via-[#151515] dark:to-blue-500/15">
       {/* Gradient Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-[#0F0F0F]/50 via-transparent to-transparent z-10 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-t from-white/50 via-transparent to-transparent z-10 pointer-events-none dark:from-[#0F0F0F]/50" />
       
       {/* Image Placeholder with Modern Dashboard Visualization */}
       <div className="relative w-full h-full bg-gradient-to-br from-orange-500/5 to-blue-500/5 flex items-center justify-center overflow-hidden">
@@ -181,7 +183,9 @@ function HeroRotatingView() {
               <div className="w-3 h-3 rounded-full bg-yellow-500/50" />
               <div className="w-3 h-3 rounded-full bg-green-500/50" />
             </div>
-            <div className="text-xs text-gray-500 font-mono">dashboard.aurapply.com</div>
+            <div className="text-xs font-mono text-gray-600 dark:text-gray-500">
+              dashboard.aurapply.com
+            </div>
           </div>
 
           {/* Stats Grid */}
@@ -196,17 +200,21 @@ function HeroRotatingView() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.8 + i * 0.1 }}
-                className="bg-white/5 rounded-xl p-4 border border-white/10 backdrop-blur-sm"
+                className="rounded-xl p-4 border backdrop-blur-sm bg-gray-100/50 border-gray-200/50 dark:bg-white/5 dark:border-white/10"
               >
-                <div className="text-xs text-gray-300 mb-1">{stat.label}</div>
+                <div className="text-xs mb-1 text-gray-700 dark:text-gray-300">
+                  {stat.label}
+                </div>
                 <div className={`text-2xl font-bold text-${stat.color}-400`}>{stat.value}</div>
               </motion.div>
             ))}
           </div>
 
           {/* Activity Chart */}
-          <div className="flex-1 bg-white/5 rounded-xl p-4 border border-white/10 backdrop-blur-sm">
-            <div className="text-xs text-gray-400 mb-3">Weekly Activity</div>
+          <div className="flex-1 rounded-xl p-4 border backdrop-blur-sm bg-gray-100/50 border-gray-200/50 dark:bg-white/5 dark:border-white/10">
+            <div className="text-xs mb-3 text-gray-600 dark:text-gray-400">
+              Weekly Activity
+            </div>
             <div className="flex items-end justify-between gap-1 h-20">
               {[30, 50, 40, 70, 60, 80, 65].map((h, i) => (
                 <motion.div
@@ -228,7 +236,7 @@ function HeroRotatingView() {
   );
 
   const terminalView = (
-    <div className="relative rounded-3xl border border-white/20 bg-[#151515]/90 backdrop-blur-2xl overflow-hidden shadow-2xl flashlight-effect flashlight-border aspect-[4/3]">
+    <div className="relative rounded-3xl border backdrop-blur-2xl overflow-hidden shadow-2xl flashlight-effect flashlight-border aspect-[4/3] border-gray-200/50 bg-white/90 dark:border-white/20 dark:bg-[#151515]/90">
       <DeveloperTerminal 
         isActive={currentIndex === 1} 
         onInteractionStart={() => setIsPaused(true)}
@@ -536,20 +544,22 @@ function DeveloperTerminal({ isActive = false, onInteractionStart, onInteraction
       onTouchEnd={handleTouchEnd}
     >
       {/* Terminal Header */}
-      <div className="flex items-center gap-2 px-6 py-4 border-b border-white/20 bg-[#0F0F0F]/80 flex-shrink-0">
+      <div className="flex items-center gap-2 px-6 py-4 border-b flex-shrink-0 border-gray-200/50 bg-gray-50/80 dark:border-white/20 dark:bg-[#0F0F0F]/80">
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 rounded-full bg-red-500/50" />
           <div className="w-3 h-3 rounded-full bg-yellow-500/50" />
           <div className="w-3 h-3 rounded-full bg-green-500/50" />
         </div>
         <div className="flex-1 text-center">
-          <span className="text-xs text-gray-500 font-mono">developer@aurapply:~</span>
+          <span className="text-xs font-mono text-gray-600 dark:text-gray-500">
+            developer@aurapply:~
+          </span>
         </div>
         <div className="w-16" />
       </div>
 
       {/* Terminal Body */}
-      <div className="flex-1 p-6 font-mono text-sm overflow-y-auto bg-[#0F0F0F]/60" style={{ scrollbarWidth: 'thin', scrollbarColor: '#FF4D00 #0F0F0F' }}>
+      <div className="flex-1 p-6 font-mono text-sm overflow-y-auto bg-gray-50/60 dark:bg-[#0F0F0F]/60" style={{ scrollbarWidth: 'thin', scrollbarColor: '#FF4D00 #FAFAFA' }}>
         {/* Welcome Message */}
         {isVisible && commandHistory.length === 0 && (
           <div className="mb-4">
@@ -561,12 +571,12 @@ function DeveloperTerminal({ isActive = false, onInteractionStart, onInteraction
             <AnimatedText 
               text="Type 'help' to see available commands" 
               delay={0.5} 
-              className="text-gray-300 block mb-4"
+              className="block mb-4 text-gray-700 dark:text-gray-300"
             />
             <AnimatedText 
               text="━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" 
               delay={0.7} 
-              className="text-gray-500 block mb-4"
+              className="block mb-4 text-gray-400 dark:text-gray-500"
             />
           </div>
         )}
@@ -581,7 +591,7 @@ function DeveloperTerminal({ isActive = false, onInteractionStart, onInteraction
                 </div>
               )}
               {item.type === 'output' && (
-                <div className="text-gray-300 ml-4">
+                <div className="ml-4 text-gray-700 dark:text-gray-300">
                   {item.lines.map((line, lineIdx) => (
                     <div key={lineIdx} className="mb-1">{line || '\u00A0'}</div>
                   ))}
@@ -593,7 +603,7 @@ function DeveloperTerminal({ isActive = false, onInteractionStart, onInteraction
 
         {/* Input Line */}
         {isVisible && (
-          <div className="flex items-center gap-2 mt-4 sticky bottom-0 bg-[#0F0F0F]/60 pb-2">
+          <div className="flex items-center gap-2 mt-4 sticky bottom-0 pb-2 bg-gray-50/60 dark:bg-[#0F0F0F]/60">
             <span className="text-orange-400 font-semibold">$</span>
             <input
               ref={inputRef}
@@ -601,7 +611,7 @@ function DeveloperTerminal({ isActive = false, onInteractionStart, onInteraction
               value={currentInput}
               onChange={handleInputChange}
               onKeyPress={handleKeyPress}
-              className="flex-1 bg-transparent border-none outline-none text-gray-200 font-mono caret-orange-400 placeholder-gray-500"
+              className="flex-1 bg-transparent border-none outline-none font-mono caret-orange-400 text-gray-800 placeholder-gray-400 dark:text-gray-200 dark:placeholder-gray-500"
               placeholder="Type a command..."
               style={{ caretColor: '#FF4D00' }}
             />
@@ -616,7 +626,6 @@ function DeveloperTerminal({ isActive = false, onInteractionStart, onInteraction
 // Rotating Card Component
 function RotatingCard({ cards, onCardClick }) {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [direction, setDirection] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const containerRef = useRef(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
@@ -625,7 +634,6 @@ function RotatingCard({ cards, onCardClick }) {
   useEffect(() => {
     if (!isPaused) {
       intervalRef.current = setInterval(() => {
-        setDirection(1);
         setCurrentIndex((prev) => (prev + 1) % cards.length);
       }, 5000);
     } else {
@@ -669,12 +677,10 @@ function RotatingCard({ cards, onCardClick }) {
   }, []);
 
   const goToNext = () => {
-    setDirection(1);
     setCurrentIndex((prev) => (prev + 1) % cards.length);
   };
 
   const goToPrev = () => {
-    setDirection(-1);
     setCurrentIndex((prev) => (prev - 1 + cards.length) % cards.length);
   };
 
@@ -702,7 +708,7 @@ function RotatingCard({ cards, onCardClick }) {
             className={`absolute inset-0 ${isActive ? 'z-10 active-card' : 'z-0 pointer-events-none'}`}
             onClick={isActive && card.key !== 'terminal' ? onCardClick : undefined}
           >
-            <div className={`relative rounded-3xl border border-white/20 bg-[#151515]/80 backdrop-blur-2xl shadow-2xl overflow-hidden transition-all group flashlight-effect flashlight-border h-full ${card.key !== 'terminal' ? 'cursor-pointer hover:border-orange-500/40' : ''}`}>
+            <div className={`relative rounded-3xl border backdrop-blur-2xl shadow-2xl overflow-hidden transition-all group flashlight-effect flashlight-border h-full ${card.key !== 'terminal' ? 'cursor-pointer hover:border-orange-500/40' : ''} border-gray-200/50 bg-white/80 dark:border-white/20 dark:bg-[#151515]/80`}>
               {/* Flashlight Background */}
               <div 
                 className="absolute pointer-events-none transition-opacity duration-300"
@@ -712,15 +718,15 @@ function RotatingCard({ cards, onCardClick }) {
                   transform: 'translate(-50%, -50%)',
                   width: '300px',
                   height: '300px',
-                  background: 'radial-gradient(circle, rgba(255, 255, 255, 0.12) 0%, transparent 70%)',
+                  background: 'radial-gradient(circle, rgba(0, 0, 0, 0.08) 0%, transparent 70%)',
                   borderRadius: '50%',
                   filter: 'blur(40px)',
                   opacity: isActive ? 1 : 0,
                   zIndex: 1,
                 }}
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0F0F0F]/70 via-transparent to-transparent z-10 pointer-events-none" />
-              <div className="relative z-0 p-8 md:p-12 bg-gradient-to-br from-orange-500/8 via-[#151515] to-trust-blue/8 h-full">
+              <div className="absolute inset-0 bg-gradient-to-t from-white/70 via-transparent to-transparent z-10 pointer-events-none dark:from-[#0F0F0F]/70" />
+              <div className="relative z-0 p-8 md:p-12 bg-gradient-to-br h-full from-orange-500/5 via-white to-trust-blue/5 dark:from-orange-500/8 dark:via-[#151515] dark:to-trust-blue/8">
                 {(() => {
                   if (!React.isValidElement(card)) return card;
                   
@@ -755,17 +761,17 @@ function RotatingCard({ cards, onCardClick }) {
       {/* Navigation Arrows */}
       <button
         onClick={goToPrev}
-        className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-white/15 backdrop-blur-xl border border-white/30 flex items-center justify-center hover:bg-white/25 transition-all border-beam"
+        className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full backdrop-blur-xl border flex items-center justify-center transition-all border-beam bg-gray-100/50 border-gray-300/50 hover:bg-gray-200/50 dark:bg-white/15 dark:border-white/30 dark:hover:bg-white/25"
         aria-label="Previous card"
       >
-        <Icon icon="solar:alt-arrow-left-bold" className="text-xl text-white" />
+        <Icon icon="solar:alt-arrow-left-bold" className="text-xl text-[#1F2937] dark:text-white" />
       </button>
       <button
         onClick={goToNext}
-        className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-white/15 backdrop-blur-xl border border-white/30 flex items-center justify-center hover:bg-white/25 transition-all border-beam"
+        className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full backdrop-blur-xl border flex items-center justify-center transition-all border-beam bg-gray-100/50 border-gray-300/50 hover:bg-gray-200/50 dark:bg-white/15 dark:border-white/30 dark:hover:bg-white/25"
         aria-label="Next card"
       >
-        <Icon icon="solar:alt-arrow-right-bold" className="text-xl text-white" />
+        <Icon icon="solar:alt-arrow-right-bold" className="text-xl text-[#1F2937] dark:text-white" />
       </button>
       
       {/* Indicators */}
@@ -774,11 +780,12 @@ function RotatingCard({ cards, onCardClick }) {
           <button
             key={index}
             onClick={() => {
-              setDirection(index > currentIndex ? 1 : -1);
               setCurrentIndex(index);
             }}
             className={`w-2 h-2 rounded-full transition-all ${
-              index === currentIndex ? 'bg-orange-500 w-8' : 'bg-white/50'
+              index === currentIndex 
+                ? 'bg-orange-500 w-8' 
+                : 'bg-gray-400/50 dark:bg-white/50'
             }`}
             aria-label={`Go to card ${index + 1}`}
           />
@@ -830,7 +837,7 @@ function GlowCard({ feature, index }) {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onMouseMove={handleMouseMove}
-      className={`relative p-8 rounded-2xl border border-white/20 bg-gradient-to-br ${feature.gradient} backdrop-blur-xl hover:border-orange-500/40 transition-all overflow-hidden flashlight-effect flashlight-border`}
+      className={`relative p-8 rounded-2xl border backdrop-blur-xl hover:border-orange-500/40 transition-all overflow-hidden flashlight-effect flashlight-border bg-gradient-to-br ${feature.gradient} border-gray-200/50 dark:border-white/20`}
     >
       {/* Flashlight Background Effect */}
       <div 
@@ -841,7 +848,7 @@ function GlowCard({ feature, index }) {
           transform: 'translate(-50%, -50%)',
           width: '300px',
           height: '300px',
-          background: 'radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%)',
+          background: 'radial-gradient(circle, rgba(0, 0, 0, 0.05) 0%, transparent 70%)',
           borderRadius: '50%',
           filter: 'blur(40px)',
           opacity: isHovered ? 1 : 0,
@@ -849,7 +856,7 @@ function GlowCard({ feature, index }) {
         }}
       />
       
-      <div className="absolute inset-0 bg-[#151515]/60 rounded-2xl" />
+      <div className="absolute inset-0 rounded-2xl bg-white/60 dark:bg-[#151515]/60" />
       
       {/* Glow Effect - Duplicated Icon that follows cursor */}
       <div 
@@ -873,7 +880,7 @@ function GlowCard({ feature, index }) {
       </div>
 
       <div className="relative z-10">
-        <div className="w-14 h-14 rounded-xl bg-white/15 flex items-center justify-center mb-6 border border-white/30 relative">
+        <div className="w-14 h-14 rounded-xl flex items-center justify-center mb-6 border relative bg-gray-100/50 border-gray-300/50 dark:bg-white/15 dark:border-white/30">
           {/* Original Icon */}
           <Icon icon={feature.icon} className="text-3xl text-orange-500 relative z-10" />
           {/* Duplicated Glow Icon - subtle movement */}
@@ -887,8 +894,12 @@ function GlowCard({ feature, index }) {
             }}
           />
         </div>
-        <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
-        <p className="text-gray-400 leading-relaxed">{feature.description}</p>
+        <h3 className="text-xl font-semibold mb-3 text-[#1F2937] dark:text-white">
+          {feature.title}
+        </h3>
+        <p className="leading-relaxed text-gray-600 dark:text-gray-400">
+          {feature.description}
+        </p>
       </div>
     </motion.div>
   );
@@ -933,35 +944,28 @@ export default function LandingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0F0F0F] text-white overflow-x-hidden relative selection:bg-orange-500/30">
-      {/* SVG Filters for Glow Effect */}
-      <svg className="absolute w-0 h-0">
-        <defs>
-          <filter id="glow-filter">
-            <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
-            <feMerge>
-              <feMergeNode in="coloredBlur"/>
-              <feMergeNode in="SourceGraphic"/>
-            </feMerge>
-          </filter>
-          <filter id="glow-filter-strong">
-            <feGaussianBlur stdDeviation="8" result="coloredBlur"/>
-            <feMerge>
-              <feMergeNode in="coloredBlur"/>
-              <feMergeNode in="SourceGraphic"/>
-            </feMerge>
-          </filter>
-        </defs>
-      </svg>
-
-      {/* Animated Background Grid with Clip Path */}
-      <div className="fixed inset-0 z-0 opacity-[0.08]">
-        <div className="absolute inset-0 clip-column" style={{
-          backgroundImage: `linear-gradient(rgba(255,255,255,0.12) 1px, transparent 1px),
-                            linear-gradient(90deg, rgba(255,255,255,0.12) 1px, transparent 1px)`,
-          backgroundSize: '50px 50px'
-        }} />
-      </div>
+    <div className="min-h-screen overflow-x-hidden relative selection:bg-orange-500/30 transition-colors duration-300 bg-[#FAFAFA] text-[#1F2937] dark:bg-[#0F0F0F] dark:text-white">
+      {/* Physics-Based Scatter Grid Background */}
+      <ScatterGrid />
+        {/* SVG Filters for Glow Effect */}
+        <svg className="absolute w-0 h-0">
+          <defs>
+            <filter id="glow-filter">
+              <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+              <feMerge>
+                <feMergeNode in="coloredBlur"/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
+            <filter id="glow-filter-strong">
+              <feGaussianBlur stdDeviation="8" result="coloredBlur"/>
+              <feMerge>
+                <feMergeNode in="coloredBlur"/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
+          </defs>
+        </svg>
 
       {/* Floating Gradient Orbs */}
       <motion.div 
@@ -1000,7 +1004,11 @@ export default function LandingPage() {
           opacity: navbarHovered ? 1 : navbarOpacity
         }}
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          scrolled ? 'bg-[#151515]/80 border-b border-white/20' : navbarHovered ? 'bg-[#151515]/95' : 'bg-[#151515]/90'
+          scrolled 
+            ? 'bg-white/80 border-b border-gray-200/50 dark:bg-[#151515]/80 dark:border-white/20' 
+            : navbarHovered 
+              ? 'bg-white/95 dark:bg-[#151515]/95' 
+              : 'bg-white/90 dark:bg-[#151515]/90'
         }`}
       >
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
@@ -1011,8 +1019,8 @@ export default function LandingPage() {
               className="flex items-center gap-2 group cursor-pointer"
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
             >
-              <div className="w-2 h-2 bg-orange-500 rounded-full" />
-              <span className="font-bold text-xl text-white">
+              <AuroraAtomIcon size={28} />
+              <span className="font-bold text-xl transition-colors duration-300 text-[#1F2937] dark:text-white">
                 AurApply
               </span>
             </motion.div>
@@ -1030,21 +1038,21 @@ export default function LandingPage() {
               </motion.button>
               <button 
                 onClick={() => scrollToSection('features')}
-                className="flex items-center gap-2 px-4 py-2 rounded-full text-gray-300 hover:text-white hover:bg-white/8 text-sm font-medium transition-colors"
+                className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors text-gray-600 hover:text-[#1F2937] hover:bg-gray-100/50 dark:text-gray-300 dark:hover:text-white dark:hover:bg-white/8"
               >
                 <Icon icon="solar:widget-5-bold-duotone" className="text-base" />
                 Features
               </button>
               <button 
                 onClick={() => scrollToSection('technology')}
-                className="flex items-center gap-2 px-4 py-2 rounded-full text-gray-300 hover:text-white hover:bg-white/8 text-sm font-medium transition-colors"
+                className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors text-gray-600 hover:text-[#1F2937] hover:bg-gray-100/50 dark:text-gray-300 dark:hover:text-white dark:hover:bg-white/8"
               >
                 <Icon icon="solar:settings-bold-duotone" className="text-base" />
                 Technology
               </button>
               <button 
                 onClick={() => scrollToSection('stats')}
-                className="flex items-center gap-2 px-4 py-2 rounded-full text-gray-300 hover:text-white hover:bg-white/8 text-sm font-medium transition-colors"
+                className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors text-gray-600 hover:text-[#1F2937] hover:bg-gray-100/50 dark:text-gray-300 dark:hover:text-white dark:hover:bg-white/8"
               >
                 <Icon icon="solar:graph-up-bold-duotone" className="text-base" />
                 Stats
@@ -1057,42 +1065,52 @@ export default function LandingPage() {
                 <motion.div 
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  className="flex items-center gap-4 bg-[#1A1A1A]/90 backdrop-blur-2xl border border-white/20 px-4 py-2 rounded-full shadow-[0_0_40px_-10px_rgba(0,0,0,0.8)]"
+                  className="flex items-center gap-4 backdrop-blur-2xl px-4 py-2 rounded-full transition-all duration-300 bg-white/90 border border-gray-200/50 shadow-[0_0_40px_-10px_rgba(0,0,0,0.1)] dark:bg-[#1A1A1A]/90 dark:border-white/20 dark:shadow-[0_0_40px_-10px_rgba(0,0,0,0.8)]"
                 >
                   <Link to="/dashboard" className="relative group">
                     <div className={`p-2 rounded-xl transition-all duration-300 ${
-                      location.pathname === '/dashboard' ? 'bg-white text-black' : 'text-gray-500 hover:text-white hover:bg-white/5'
+                      location.pathname === '/dashboard' 
+                        ? 'bg-[#1F2937] text-white dark:bg-white dark:text-black'
+                        : 'text-gray-500 hover:text-[#1F2937] hover:bg-gray-100/50 dark:hover:text-white dark:hover:bg-white/5'
                     }`}>
                       <Icon icon="solar:widget-bold-duotone" width="20" height="20" />
                     </div>
                     {location.pathname === '/dashboard' && (
                       <motion.div 
                         layoutId="dot" 
-                        className="absolute -bottom-1 left-0 right-0 mx-auto w-1 h-1 bg-white rounded-full" 
+                        className="absolute -bottom-1 left-0 right-0 mx-auto w-1 h-1 rounded-full bg-[#1F2937] dark:bg-white"
                       />
                     )}
                   </Link>
                   <Link to="/discover" className="relative group">
                     <div className={`p-2 rounded-xl transition-all duration-300 ${
-                      location.pathname === '/discover' ? 'bg-white text-black' : 'text-gray-500 hover:text-white hover:bg-white/5'
+                      location.pathname === '/discover' 
+                        ? 'bg-[#1F2937] text-white dark:bg-white dark:text-black'
+                        : 'text-gray-500 hover:text-[#1F2937] hover:bg-gray-100/50 dark:hover:text-white dark:hover:bg-white/5'
                     }`}>
                       <Icon icon="solar:radar-bold-duotone" width="20" height="20" />
                     </div>
                     {location.pathname === '/discover' && (
                       <motion.div 
                         layoutId="dot" 
-                        className="absolute -bottom-1 left-0 right-0 mx-auto w-1 h-1 bg-white rounded-full" 
+                        className="absolute -bottom-1 left-0 right-0 mx-auto w-1 h-1 rounded-full bg-[#1F2937] dark:bg-white"
                       />
                     )}
                   </Link>
-                  <div className="w-px h-6 bg-white/20 mx-1"></div>
+                  <div className="w-px h-6 mx-1 bg-gray-300/50 dark:bg-white/20"></div>
+                  
+                  {/* Theme Toggle */}
+                  <ThemeToggle />
+                  
+                  <div className="w-px h-6 mx-1 bg-gray-300/50 dark:bg-white/20"></div>
+                  
                   <button 
                     onClick={() => { 
                       localStorage.removeItem('token'); 
                       setToken(null);
                       navigate('/auth');
                     }} 
-                    className="p-2 rounded-xl text-gray-500 hover:text-red-500 hover:bg-red-500/10 transition-all"
+                    className="p-2 rounded-xl transition-all text-gray-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10"
                   >
                     <Icon icon="solar:logout-3-bold-duotone" width="20" height="20" />
                   </button>
@@ -1140,7 +1158,7 @@ export default function LandingPage() {
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.2 }}
-              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-white/15 to-white/8 border border-white/30 text-xs font-mono text-orange-400 mb-8 backdrop-blur-xl"
+              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border text-xs font-mono text-orange-400 mb-8 backdrop-blur-xl bg-gradient-to-r from-orange-50 to-orange-100/50 border-orange-200/50 dark:from-white/15 dark:to-white/8 dark:border-white/30"
             >
               <motion.div 
                 animate={{ scale: [1, 1.2, 1] }}
@@ -1155,8 +1173,7 @@ export default function LandingPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.8, fillMode: 'both' }}
-              className="text-5xl md:text-6xl lg:text-7xl font-medium tracking-tighter leading-[1.05] mb-8"
-              style={{ color: 'white' }}
+              className="text-5xl md:text-6xl lg:text-7xl font-medium tracking-tighter leading-[1.05] mb-8 text-[#1F2937] dark:text-white"
             >
               <TypewriterText 
                 texts={[
@@ -1261,16 +1278,24 @@ export default function LandingPage() {
             cards={[
               <div key="card1">
             <div className="mb-8 text-center">
-              <h3 className="text-xl font-semibold text-white mb-2">Dashboard Preview</h3>
-              <p className="text-sm text-gray-500 mb-3">Real-time insights into your job search performance</p>
+              <h3 className="text-xl font-semibold mb-2 text-[#1F2937] dark:text-white">
+                Dashboard Preview
+              </h3>
+              <p className="text-sm mb-3 text-gray-600 dark:text-gray-500">
+                Real-time insights into your job search performance
+              </p>
             </div>
             <div className="grid grid-cols-2 gap-4 w-full">
               <motion.div 
                 whileHover={{ scale: 1.02, borderColor: 'rgba(255, 77, 0, 0.3)' }}
-                    className="glass-card rounded-xl p-6 border border-white/20 bg-white/8 transition-all flashlight-effect flashlight-border"
+                    className="glass-card rounded-xl p-6 border transition-all flashlight-effect flashlight-border border-gray-200/50 bg-gray-50/50 dark:border-white/20 dark:bg-white/8"
               >
-                <div className="text-xs text-gray-400 mb-2">Total Applications</div>
-                <div className="text-4xl font-bold text-white mb-4">142</div>
+                <div className="text-xs mb-2 text-gray-600 dark:text-gray-400">
+                  Total Applications
+                </div>
+                <div className="text-4xl font-bold mb-4 text-[#1F2937] dark:text-white">
+                  142
+                </div>
                 <div className="h-20 flex items-end gap-1.5">
                   {[40, 60, 30, 80, 50, 70].map((h, i) => (
                     <motion.div
@@ -1285,19 +1310,25 @@ export default function LandingPage() {
               </motion.div>
               <motion.div 
                 whileHover={{ scale: 1.02, borderColor: 'rgba(255, 77, 0, 0.3)' }}
-                      className="glass-card rounded-xl p-6 border border-white/20 bg-white/8 flex flex-col justify-between transition-all flashlight-effect flashlight-border"
+                      className="glass-card rounded-xl p-6 border flex flex-col justify-between transition-all flashlight-effect flashlight-border border-gray-200/50 bg-gray-50/50 dark:border-white/20 dark:bg-white/8"
               >
                 <Icon icon="solar:upload-square-bold-duotone" className="text-orange-500 text-3xl mb-4" />
                 <div>
-                  <div className="text-base text-white font-semibold mb-1">Upload CV</div>
-                  <div className="text-xs text-gray-300">Update your assets</div>
+                  <div className="text-base font-semibold mb-1 text-[#1F2937] dark:text-white">
+                    Upload CV
+                  </div>
+                  <div className="text-xs text-gray-600 dark:text-gray-300">
+                    Update your assets
+                  </div>
                 </div>
               </motion.div>
               <motion.div 
                 whileHover={{ scale: 1.02, borderColor: 'rgba(255, 77, 0, 0.3)' }}
-                      className="glass-card rounded-xl p-6 border border-white/20 bg-white/8 col-span-2 transition-all flashlight-effect flashlight-border"
+                      className="glass-card rounded-xl p-6 border col-span-2 transition-all flashlight-effect flashlight-border border-gray-200/50 bg-gray-50/50 dark:border-white/20 dark:bg-white/8"
               >
-                  <div className="text-xs text-gray-400 mb-4">Recent Activity</div>
+                  <div className="text-xs mb-4 text-gray-600 dark:text-gray-400">
+                    Recent Activity
+                  </div>
                 <div className="space-y-3">
                   {[
                     { company: 'Vercel', role: 'Frontend Engineer', status: 'Sent', time: '2h ago' },
@@ -1309,17 +1340,23 @@ export default function LandingPage() {
                           initial={{ filter: 'blur(5px)', x: -20 }}
                           animate={{ filter: 'blur(0px)', x: 0 }}
                           transition={{ delay: 1.4 + i * 0.1, fillMode: 'both' }}
-                      className="flex items-center justify-between p-3 rounded-lg bg-white/8 hover:bg-white/15 transition"
+                      className="flex items-center justify-between p-3 rounded-lg transition bg-gray-100/50 hover:bg-gray-200/50 dark:bg-white/8 dark:hover:bg-white/15"
                     >
                       <div className="flex items-center gap-3">
                         <div className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
                         <div>
-                          <span className="text-sm text-white font-medium">{item.role}</span>
-                          <span className="text-xs text-gray-400 ml-2">at {item.company}</span>
+                          <span className="text-sm font-medium text-[#1F2937] dark:text-white">
+                            {item.role}
+                          </span>
+                          <span className="text-xs ml-2 text-gray-600 dark:text-gray-400">
+                            at {item.company}
+                          </span>
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
-                        <span className="text-xs text-gray-400">{item.time}</span>
+                        <span className="text-xs text-gray-600 dark:text-gray-400">
+                          {item.time}
+                        </span>
                         <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${
                           item.status === 'Sent' ? 'bg-trust-blue/20 text-trust-blue' : 
                           item.status === 'Viewed' ? 'bg-success-green/20 text-success-green' : 
@@ -1336,8 +1373,12 @@ export default function LandingPage() {
               </div>,
               <div key="card2">
                 <div className="mb-8 text-center">
-                  <h3 className="text-xl font-semibold text-white mb-2">Analytics Overview</h3>
-                  <p className="text-sm text-gray-400 mb-3">Track your application success metrics</p>
+                  <h3 className="text-xl font-semibold mb-2 text-[#1F2937] dark:text-white">
+                    Analytics Overview
+                  </h3>
+                  <p className="text-sm mb-3 text-gray-600 dark:text-gray-400">
+                    Track your application success metrics
+                  </p>
                 </div>
                 <div className="grid grid-cols-3 gap-4 w-full">
                   {[
@@ -1348,9 +1389,11 @@ export default function LandingPage() {
                     <motion.div
                       key={i}
                       whileHover={{ scale: 1.05 }}
-                      className="glass-card rounded-xl p-6 border border-white/10 bg-white/5 transition-all flashlight-effect flashlight-border text-center"
+                      className="glass-card rounded-xl p-6 border transition-all flashlight-effect flashlight-border text-center border-gray-200/50 bg-gray-50/50 dark:border-white/10 dark:bg-white/5"
                     >
-                      <div className="text-xs text-gray-400 mb-2">{stat.label}</div>
+                      <div className="text-xs mb-2 text-gray-600 dark:text-gray-400">
+                        {stat.label}
+                      </div>
                       <div className={`text-3xl font-bold text-${stat.color}-400 mb-2`}>{stat.value}</div>
                       <div className="h-16 flex items-end justify-center">
                         <motion.div
@@ -1366,8 +1409,12 @@ export default function LandingPage() {
               </div>,
               <div key="card3">
                 <div className="mb-8 text-center">
-                  <h3 className="text-xl font-semibold text-white mb-2">Job Matching</h3>
-                  <p className="text-sm text-gray-400 mb-3">AI-powered job recommendations</p>
+                  <h3 className="text-xl font-semibold mb-2 text-[#1F2937] dark:text-white">
+                    Job Matching
+                  </h3>
+                  <p className="text-sm mb-3 text-gray-600 dark:text-gray-400">
+                    AI-powered job recommendations
+                  </p>
                 </div>
                 <div className="space-y-4">
                   {[
@@ -1381,16 +1428,22 @@ export default function LandingPage() {
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: 1.6 + i * 0.1, fillMode: 'both' }}
-                      className="glass-card rounded-xl p-6 border border-white/20 bg-white/8 transition-all flashlight-effect flashlight-border"
+                      className="glass-card rounded-xl p-6 border transition-all flashlight-effect flashlight-border border-gray-200/50 bg-gray-50/50 dark:border-white/20 dark:bg-white/8"
                     >
                       <div className="flex items-center justify-between mb-2">
                         <div>
-                          <div className="text-base text-white font-semibold">{job.title}</div>
-                          <div className="text-sm text-gray-300">{job.company}</div>
+                          <div className="text-base font-semibold text-[#1F2937] dark:text-white">
+                            {job.title}
+                          </div>
+                          <div className="text-sm text-gray-600 dark:text-gray-300">
+                            {job.company}
+                          </div>
                         </div>
                         <div className="text-right">
                           <div className="text-2xl font-bold text-orange-400">{job.match}</div>
-                          <div className="text-xs text-gray-400">Match</div>
+                          <div className="text-xs text-gray-600 dark:text-gray-400">
+                            Match
+                          </div>
                         </div>
                       </div>
                       <div className="mt-3">
@@ -1417,10 +1470,10 @@ export default function LandingPage() {
           transition={{ duration: 0.8, fillMode: 'both' }}
           className="text-center mb-20"
         >
-          <h2 className="text-5xl md:text-6xl font-medium tracking-tight mb-6">
+          <h2 className="text-5xl md:text-6xl font-medium tracking-tight mb-6 text-[#1F2937] dark:text-white">
             <AnimatedText text="Powerful Features" delay={0} />
           </h2>
-              <p className="text-xl text-gray-300 max-w-2xl mx-auto">
+              <p className="text-xl max-w-2xl mx-auto text-gray-700 dark:text-gray-300">
             <AnimatedText text="Everything you need to streamline your job search process" delay={0.3} />
           </p>
         </motion.div>
@@ -1478,7 +1531,7 @@ export default function LandingPage() {
           transition={{ duration: 0.8, fillMode: 'both' }}
           className="text-center mb-12"
         >
-          <p className="text-sm text-gray-400 uppercase tracking-wider mb-8">
+          <p className="text-sm uppercase tracking-wider mb-8 text-gray-600 dark:text-gray-400">
             Trusted by leading companies
           </p>
         </motion.div>
@@ -1492,7 +1545,9 @@ export default function LandingPage() {
                 key={i}
                 className="flex-shrink-0 px-12 flex items-center justify-center"
               >
-                <div className="text-4xl font-bold text-white mono-logo hover:text-white transition-all">
+                <div className={`text-4xl font-bold mono-logo transition-all ${
+                  'text-gray-800 hover:text-[#1F2937] dark:text-white dark:hover:text-white'
+                }`}>
                   {logo}
                 </div>
               </div>
@@ -1578,16 +1633,16 @@ export default function LandingPage() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.8, fillMode: 'both' }}
-            className="relative p-10 rounded-3xl border border-white/20 bg-[#151515]/80 backdrop-blur-xl flashlight-effect flashlight-border"
+            className="relative p-10 rounded-3xl border border-gray-200/50 bg-white/80 backdrop-blur-xl flashlight-effect flashlight-border dark:border-white/20 dark:bg-[#151515]/80"
           >
             <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/10 rounded-full blur-3xl" />
-            <h3 className="text-2xl font-semibold mb-4">Cinematic Intelligence</h3>
-            <p className="text-gray-300 leading-relaxed mb-6">
+            <h3 className="text-2xl font-semibold mb-4 text-[#1F2937] dark:text-white">Cinematic Intelligence</h3>
+            <p className="text-gray-700 leading-relaxed mb-6 dark:text-gray-300">
               Our proprietary AI engine doesn't just match keywords—it understands context, culture fit, and career progression. Think of it as having a career coach that never sleeps.
             </p>
             <div className="flex flex-wrap gap-2">
               {['GPT-4', 'NLP', 'Computer Vision', 'ML'].map((tech, i) => (
-                <span key={i} className="px-3 py-1 rounded-full bg-white/8 border border-white/20 text-sm text-gray-300">
+                <span key={i} className="px-3 py-1 rounded-full bg-gray-100/50 border border-gray-200/50 text-sm text-gray-700 dark:bg-white/8 dark:border-white/20 dark:text-gray-300">
                   {tech}
                 </span>
               ))}
@@ -1599,7 +1654,7 @@ export default function LandingPage() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.8, fillMode: 'both' }}
-            className="relative p-10 rounded-3xl border border-white/20 bg-[#151515]/80 backdrop-blur-xl flashlight-effect flashlight-border"
+            className="relative p-10 rounded-3xl border border-gray-200/50 bg-white/80 backdrop-blur-xl flashlight-effect flashlight-border dark:border-white/20 dark:bg-[#151515]/80"
           >
             <div className="absolute bottom-0 left-0 w-32 h-32 bg-trust-blue/10 rounded-full blur-3xl" />
             <h3 className="text-2xl font-semibold mb-4">Secure & Scalable</h3>
@@ -1608,7 +1663,7 @@ export default function LandingPage() {
             </p>
             <div className="flex flex-wrap gap-2">
               {['AWS', 'Encryption', 'SOC 2', 'GDPR'].map((tech, i) => (
-                <span key={i} className="px-3 py-1 rounded-full bg-white/8 border border-white/20 text-sm text-gray-300">
+                <span key={i} className="px-3 py-1 rounded-full bg-gray-100/50 border border-gray-200/50 text-sm text-gray-700 dark:bg-white/8 dark:border-white/20 dark:text-gray-300">
                   {tech}
                 </span>
               ))}
@@ -1626,10 +1681,10 @@ export default function LandingPage() {
           transition={{ duration: 0.8, fillMode: 'both' }}
           className="text-center mb-20"
         >
-          <h2 className="text-5xl md:text-6xl font-medium tracking-tight mb-6">
+          <h2 className="text-5xl md:text-6xl font-medium tracking-tight mb-6 text-[#1F2937] dark:text-white">
             <AnimatedText text="Trusted By Professionals" delay={0} />
           </h2>
-              <p className="text-xl text-gray-300 max-w-2xl mx-auto">
+              <p className="text-xl text-gray-700 max-w-2xl mx-auto dark:text-gray-300">
             <AnimatedText text="See what our users are saying" delay={0.3} />
           </p>
         </motion.div>
@@ -1789,9 +1844,14 @@ export default function LandingPage() {
               <button className="bg-transparent border-none p-0 text-gray-300 hover:text-white transition">
                 <Icon icon="solar:linkedin-bold" className="text-xl" />
               </button>
-              <button className="bg-transparent border-none p-0 text-gray-300 hover:text-white transition">
+              <a 
+                href="https://github.com/Papitto42" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="bg-transparent border-none p-0 text-gray-300 hover:text-white transition"
+              >
                 <Icon icon="solar:github-bold" className="text-xl" />
-              </button>
+              </a>
             </div>
           </div>
         </div>

@@ -82,6 +82,28 @@ npm start
 
 The app will be available at `http://localhost:3000`
 
+## 🚀 Deployment
+
+### Quick Deploy Options
+
+**Frontend:**
+- **Firebase Hosting** (Recommended) - See `FIREBASE_QUICK_START.md`
+- **Vercel** - See `QUICK_DEPLOY.md`
+- **Netlify** - Similar to Vercel
+
+**Backend:**
+- **Render** (Recommended) - See `DEPLOYMENT_GUIDE.md`
+- **Railway** - See `DEPLOYMENT_GUIDE.md`
+- **Firebase Functions** - See `FIREBASE_DEPLOYMENT.md` (requires refactoring)
+
+**Database:**
+- **MongoDB Atlas** (Free tier available) - See `SETUP_MONGODB.md`
+
+### Quick Start
+1. **Firebase Hosting** (5 min): `./deploy-firebase.sh`
+2. **Vercel** (5 min): See `QUICK_DEPLOY.md`
+3. **Full Guide**: See `DEPLOYMENT_GUIDE.md` or `FIREBASE_DEPLOYMENT.md`
+
 ## 📝 Environment Variables
 
 See `backend/env.template` for required environment variables.
@@ -102,4 +124,11 @@ Copyright © 2025 AurApply Inc. All rights reserved.
 ## 👥 Contributing
 
 This is a private repository. For access, please contact the repository owner.
+
+
+
+
+
+
+
 

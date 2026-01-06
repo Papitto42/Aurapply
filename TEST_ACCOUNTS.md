@@ -59,3 +59,10 @@ The registration will work once MongoDB is running and the backend server is con
 
 
 
+
+
+
+
+
+
+

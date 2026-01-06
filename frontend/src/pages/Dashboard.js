@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { motion } from 'framer-motion';
 import { Icon } from '@iconify/react';
+import { API_ENDPOINTS } from '../config/api';
 
 export default function Dashboard() {
   const [history, setHistory] = useState([]);
@@ -15,7 +16,7 @@ export default function Dashboard() {
       return [];
     }
     try {
-      const res = await axios.get('http://localhost:5001/api/history', { 
+      const res = await axios.get(API_ENDPOINTS.HISTORY, { 
         headers: { Authorization: `Bearer ${token}` } 
       });
       return Array.isArray(res.data) ? res.data : [];
@@ -30,7 +31,7 @@ export default function Dashboard() {
       return { user: '', pass: '' };
     }
     try {
-      const res = await axios.get('http://localhost:5001/api/config', { 
+      const res = await axios.get(API_ENDPOINTS.CONFIG, { 
         headers: { Authorization: `Bearer ${token}` } 
       });
       return res.data || { user: '', pass: '' };
@@ -92,8 +93,8 @@ export default function Dashboard() {
     formData.append(e.target.name === 'resume' ? 'resume' : 'coverLetter', file);
     
     try {
-      const endpoint = e.target.name === 'resume' ? '/api/upload/resume' : '/api/upload/coverletter';
-      const res = await axios.post(`http://localhost:5001${endpoint}`, formData, { 
+      const endpoint = e.target.name === 'resume' ? API_ENDPOINTS.UPLOAD_CV : API_ENDPOINTS.UPLOAD_COVER_LETTER;
+      const res = await axios.post(endpoint, formData, { 
         headers: { 
           Authorization: `Bearer ${token}`,
           'Content-Type': 'multipart/form-data'
@@ -142,7 +143,7 @@ export default function Dashboard() {
     }
     
     try {
-      await axios.post('http://localhost:5001/api/config', 
+      await axios.post(API_ENDPOINTS.CONFIG, 
         { emailUser: user, emailPass: pass }, 
         { headers: { Authorization: `Bearer ${token}` } }
       );

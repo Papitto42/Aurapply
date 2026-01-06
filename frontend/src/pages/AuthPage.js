@@ -4,6 +4,7 @@ import axios from 'axios';
 import { motion } from 'framer-motion';
 import { Icon } from '@iconify/react';
 import { AuthContext } from '../App';
+import { API_ENDPOINTS } from '../config/api';
 
 export default function AuthPage() {
   const navigate = useNavigate();
@@ -30,9 +31,9 @@ export default function AuthPage() {
       return;
     }
     
-    const endpoint = isLogin ? 'login' : 'register';
+    const endpoint = isLogin ? API_ENDPOINTS.LOGIN : API_ENDPOINTS.REGISTER;
     try {
-      const res = await axios.post(`http://localhost:5001/api/auth/${endpoint}`, form, {
+      const res = await axios.post(endpoint, form, {
         headers: {
           'Content-Type': 'application/json',
         },
@@ -110,7 +111,7 @@ export default function AuthPage() {
                 <p className="text-xs text-gray-500 uppercase tracking-wider mt-1">Efficiency</p>
              </div>
              <div>
-                <h3 className="text-3xl font-bold text-white">140k</h3>
+                <h3 className="text-3xl font-bold text-white">3</h3>
                 <p className="text-xs text-gray-500 uppercase tracking-wider mt-1">Active Users</p>
              </div>
           </div>

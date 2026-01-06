@@ -6,6 +6,7 @@ import { Icon } from '@iconify/react';
 import axios from 'axios';
 import { AuthContext } from '../App';
 import DashboardLayout from '../layouts/DashboardLayout';
+import { API_ENDPOINTS } from '../config/api';
 
 export default function Analytics() {
   const { setToken } = useContext(AuthContext);
@@ -23,7 +24,7 @@ export default function Analytics() {
         return;
       }
       try {
-        const res = await axios.get('http://localhost:5001/api/history', {
+        const res = await axios.get(API_ENDPOINTS.HISTORY, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setApplications(Array.isArray(res.data) ? res.data : []);

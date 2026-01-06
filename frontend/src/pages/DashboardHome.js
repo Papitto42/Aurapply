@@ -6,6 +6,8 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../App';
 import DashboardLayout from '../layouts/DashboardLayout';
 import GlowCard from '../components/GlowCard';
+import { API_ENDPOINTS } from '../config/api';
+import ThemeToggle from '../components/ThemeToggle';
 
 export default function DashboardHome() {
   const [history, setHistory] = useState([]);
@@ -27,7 +29,7 @@ export default function DashboardHome() {
       return [];
     }
     try {
-      const res = await axios.get('http://localhost:5001/api/history', { 
+      const res = await axios.get(API_ENDPOINTS.HISTORY, { 
         headers: { Authorization: `Bearer ${token}` } 
       });
       return Array.isArray(res.data) ? res.data : [];
@@ -42,7 +44,7 @@ export default function DashboardHome() {
       return { user: '', pass: '' };
     }
     try {
-      const res = await axios.get('http://localhost:5001/api/config', { 
+      const res = await axios.get(API_ENDPOINTS.CONFIG, { 
         headers: { Authorization: `Bearer ${token}` } 
       });
       return res.data || { user: '', pass: '' };
@@ -57,7 +59,7 @@ export default function DashboardHome() {
       return { documents: null };
     }
     try {
-      const res = await axios.get('http://localhost:5001/api/user/profile', { 
+      const res = await axios.get(API_ENDPOINTS.USER_PROFILE, { 
         headers: { Authorization: `Bearer ${token}` } 
       });
       return res.data || { documents: null };
@@ -72,7 +74,7 @@ export default function DashboardHome() {
       return [];
     }
     try {
-      const res = await axios.get('http://localhost:5001/api/emails', { 
+      const res = await axios.get(API_ENDPOINTS.EMAILS, { 
         headers: { Authorization: `Bearer ${token}` } 
       });
       return Array.isArray(res.data) ? res.data : [];
@@ -89,7 +91,7 @@ export default function DashboardHome() {
     }
     setCheckingEmails(true);
     try {
-      const res = await axios.post('http://localhost:5001/api/emails/check', {}, {
+      const res = await axios.post(API_ENDPOINTS.CHECK_EMAILS, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.data.count > 0) {
@@ -257,7 +259,7 @@ export default function DashboardHome() {
       window.removeEventListener('profileUpdated', handleProfileUpdate);
       clearInterval(pollInterval);
     };
-  }, [token, location.pathname]); // Re-run when path changes too
+  }, [token, location.pathname, fetchConfig, fetchEmails, fetchHistory, fetchProfile]); // Re-run when path changes too
 
   const handleUpload = async (e) => {
     // Validate file input
@@ -299,8 +301,8 @@ export default function DashboardHome() {
     formData.append(e.target.name === 'resume' ? 'resume' : 'coverLetter', file);
     
     try {
-      const endpoint = fileType === 'resume' ? '/api/upload/resume' : '/api/upload/coverletter';
-      const res = await axios.post(`http://localhost:5001${endpoint}`, formData, { 
+      const endpoint = fileType === 'resume' ? API_ENDPOINTS.UPLOAD_CV : API_ENDPOINTS.UPLOAD_COVER_LETTER;
+      const res = await axios.post(endpoint, formData, { 
         headers: { 
           Authorization: `Bearer ${token}`,
           'Content-Type': 'multipart/form-data'
@@ -389,7 +391,7 @@ export default function DashboardHome() {
     }
     
     try {
-      await axios.post('http://localhost:5001/api/config', 
+      await axios.post(API_ENDPOINTS.CONFIG, 
         { emailUser: user, emailPass: pass }, 
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -416,49 +418,59 @@ export default function DashboardHome() {
 
   return (
     <DashboardLayout>
-      <div className="min-h-screen bg-[#050505] relative">
+      <div className="min-h-screen relative transition-colors duration-300 bg-[#FAFAFA] dark:bg-[#050505]">
         <div className="bg-noise"></div>
         
         {/* Fixed Control Bar - Top Right Corner */}
         <motion.div 
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="fixed top-4 right-6 z-[100] flex items-center gap-4 bg-[#111]/80 backdrop-blur-2xl border border-white/10 px-4 py-2 rounded-full shadow-[0_0_40px_-10px_rgba(0,0,0,0.8)]"
+          className="fixed top-4 right-6 z-[100] flex items-center gap-4 backdrop-blur-2xl px-4 py-2 rounded-full transition-all duration-300 bg-white/80 border border-gray-200/50 shadow-[0_0_40px_-10px_rgba(0,0,0,0.1)] dark:bg-[#111]/80 dark:border-white/10 dark:shadow-[0_0_40px_-10px_rgba(0,0,0,0.8)]"
         >
           <Link to="/dashboard" className="relative group">
             <div className={`p-2 rounded-xl transition-all duration-300 ${
-              location.pathname === '/dashboard' ? 'bg-white text-black' : 'text-gray-500 hover:text-white hover:bg-white/5'
+              location.pathname === '/dashboard' 
+                ? 'bg-[#1F2937] text-white dark:bg-white dark:text-black'
+                : 'text-gray-500 hover:text-[#1F2937] hover:bg-gray-100/50 dark:hover:text-white dark:hover:bg-white/5'
             }`}>
               <Icon icon="solar:widget-bold-duotone" width="20" height="20" />
             </div>
             {location.pathname === '/dashboard' && (
               <motion.div 
                 layoutId="dot" 
-                className="absolute -bottom-1 left-0 right-0 mx-auto w-1 h-1 bg-white rounded-full" 
+                className="absolute -bottom-1 left-0 right-0 mx-auto w-1 h-1 rounded-full bg-[#1F2937] dark:bg-white"
               />
             )}
           </Link>
           <Link to="/discover" className="relative group">
             <div className={`p-2 rounded-xl transition-all duration-300 ${
-              location.pathname === '/discover' ? 'bg-white text-black' : 'text-gray-500 hover:text-white hover:bg-white/5'
+              location.pathname === '/discover' 
+                ? 'bg-[#1F2937] text-white dark:bg-white dark:text-black'
+                : 'text-gray-500 hover:text-[#1F2937] hover:bg-gray-100/50 dark:hover:text-white dark:hover:bg-white/5'
             }`}>
               <Icon icon="solar:radar-bold-duotone" width="20" height="20" />
             </div>
             {location.pathname === '/discover' && (
               <motion.div 
                 layoutId="dot" 
-                className="absolute -bottom-1 left-0 right-0 mx-auto w-1 h-1 bg-white rounded-full" 
+                className="absolute -bottom-1 left-0 right-0 mx-auto w-1 h-1 rounded-full bg-[#1F2937] dark:bg-white"
               />
             )}
           </Link>
-          <div className="w-px h-6 bg-white/10 mx-1"></div>
+          <div className="w-px h-6 mx-1 bg-gray-300/50 dark:bg-white/10"></div>
+          
+          {/* Theme Toggle */}
+          <ThemeToggle />
+          
+          <div className="w-px h-6 mx-1 bg-gray-300/50 dark:bg-white/10"></div>
+          
           <button 
             onClick={() => { 
               localStorage.removeItem('token'); 
               setToken(null);
               navigate('/auth');
             }} 
-            className="p-2 rounded-xl text-gray-500 hover:text-red-500 hover:bg-red-500/10 transition-all"
+            className="p-2 rounded-xl transition-all text-gray-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10"
           >
             <Icon icon="solar:logout-3-bold-duotone" width="20" height="20" />
           </button>
@@ -468,15 +480,32 @@ export default function DashboardHome() {
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="flex justify-between items-end mb-10 px-2">
           <div className="flex items-center gap-4">
              <div>
-                <h1 className="text-4xl font-medium text-white tracking-tight mb-1">Overview</h1>
-                <p className="text-gray-500 font-mono text-xs uppercase tracking-widest">System Status: Online</p>
+                <h1 className="text-4xl font-medium tracking-tight mb-1 transition-colors duration-300 text-[#1F2937] dark:text-white">
+                  Overview
+                </h1>
+                <p className="font-mono text-xs uppercase tracking-widest transition-colors duration-300 text-gray-600 dark:text-gray-500">
+                  System Status: Online
+                </p>
              </div>
-             <div className="flex gap-4 ml-8">
-                <div className="h-10 w-10 rounded-full glass-card flex items-center justify-center hover:bg-white/10 cursor-pointer transition">
-                   <Icon icon="solar:bell-bold-duotone" className="text-white" width="20" />
+             <div className="flex gap-4 ml-8 items-center">
+                {/* Theme Toggle - Prominent placement */}
+                <div className="flex items-center gap-2">
+                  <ThemeToggle />
                 </div>
-                <div className="h-10 w-10 rounded-full glass-card flex items-center justify-center hover:bg-white/10 cursor-pointer transition">
-                   <Icon icon="solar:settings-bold-duotone" className="text-white" width="20" />
+                
+                <div className="h-10 w-10 rounded-full glass-card flex items-center justify-center cursor-pointer transition hover:bg-gray-100/50 dark:hover:bg-white/10">
+                   <Icon 
+                     icon="solar:bell-bold-duotone" 
+                     className="text-[#1F2937] dark:text-white" 
+                     width="20" 
+                   />
+                </div>
+                <div className="h-10 w-10 rounded-full glass-card flex items-center justify-center cursor-pointer transition hover:bg-gray-100/50 dark:hover:bg-white/10">
+                   <Icon 
+                     icon="solar:settings-bold-duotone" 
+                     className="text-[#1F2937] dark:text-white" 
+                     width="20" 
+                   />
                 </div>
              </div>
           </div>
@@ -493,15 +522,23 @@ export default function DashboardHome() {
                glowColor="rgba(255, 77, 0, 0.4)"
                className="lg:col-span-2 row-span-2 glass-card rounded-[32px] p-8 relative overflow-hidden group"
              >
-               <div className="absolute top-0 right-0 p-8 opacity-20 group-hover:opacity-40 transition-opacity pointer-events-none">
+               <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-40 transition-opacity pointer-events-none dark:opacity-20">
                   <Icon icon="solar:chart-square-bold-duotone" width="120" />
                </div>
-               <h3 className="text-gray-400 mb-2 relative z-10">Total Applications</h3>
-               <h2 className="text-6xl font-medium text-white mb-8 relative z-10">{totalApplications || history.length}</h2>
+               <h3 className="mb-2 relative z-10 transition-colors duration-300 text-gray-600 dark:text-gray-400">
+                 Total Applications
+               </h3>
+               <h2 className="text-6xl font-medium mb-8 relative z-10 transition-colors duration-300 text-[#1F2937] dark:text-white">
+                 {totalApplications || history.length}
+               </h2>
                
                <div className="h-32 w-full flex items-end gap-2 relative z-10">
                   {[40, 60, 30, 80, 50, 90, 70].map((h, i) => (
-                     <div key={i} style={{ height: `${h}%` }} className="flex-1 bg-white/10 rounded-t-lg hover:bg-orange-500 transition-colors duration-500"></div>
+                     <div 
+                       key={i} 
+                       style={{ height: `${h}%` }} 
+                       className="flex-1 rounded-t-lg hover:bg-orange-500 transition-colors duration-500 bg-gray-300/50 dark:bg-white/10"
+                     />
                   ))}
                </div>
              </GlowCard>
@@ -538,10 +575,10 @@ export default function DashboardHome() {
                   )}
                </div>
                <div className="relative z-10">
-                  <h3 className="text-xl font-bold text-white">
+                  <h3 className="text-xl font-bold transition-colors duration-300 text-[#1F2937] dark:text-white">
                     {uploadState.type === 'resume' && uploadState.status === 'success' ? 'Uploaded!' : 'Upload CV'}
                   </h3>
-                  <p className="text-sm text-gray-500 mt-1">
+                  <p className="text-sm mt-1 transition-colors duration-300 text-gray-600 dark:text-gray-500">
                     {uploadState.type === 'resume' && uploadState.status === 'uploading' ? 'Uploading...' : 
                      uploadState.type === 'resume' && uploadState.status === 'success' ? 'File uploaded successfully' :
                      'Update your primary PDF assets.'}
@@ -578,8 +615,12 @@ export default function DashboardHome() {
                   <Icon icon="solar:mailbox-bold-duotone" width="24" className="relative z-10" />
                </div>
                <div className="relative z-10">
-                  <h3 className="text-xl font-bold text-white">SMTP Setup</h3>
-                  <p className="text-sm text-gray-500 mt-1">Connect Gmail for automation.</p>
+                  <h3 className="text-xl font-bold transition-colors duration-300 text-[#1F2937] dark:text-white">
+                    SMTP Setup
+                  </h3>
+                  <p className="text-sm mt-1 transition-colors duration-300 text-gray-600 dark:text-gray-500">
+                    Connect Gmail for automation.
+                  </p>
                </div>
              </GlowCard>
            </motion.div>
@@ -587,8 +628,13 @@ export default function DashboardHome() {
            {/* 4. Recent Activity List (Long vertical) */}
            <motion.div variants={item} className="lg:col-span-2 glass-card rounded-[32px] p-8">
               <div className="flex justify-between items-center mb-6">
-                 <h3 className="text-xl font-bold">Recent Activity</h3>
-                 <Icon icon="solar:menu-dots-bold" className="text-gray-500" />
+                 <h3 className="text-xl font-bold transition-colors duration-300 text-[#1F2937] dark:text-white">
+                   Recent Activity
+                 </h3>
+                 <Icon 
+                   icon="solar:menu-dots-bold" 
+                   className="text-gray-600 dark:text-gray-500" 
+                 />
               </div>
               <div className="space-y-4 max-h-[500px] overflow-y-auto">
                  {history.map((app, i) => (
@@ -597,7 +643,7 @@ export default function DashboardHome() {
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: i * 0.05 }}
-                      className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.05] transition-all group"
+                      className="flex items-center justify-between p-4 rounded-2xl border transition-all group bg-gray-50/50 border-gray-200/50 hover:bg-gray-100/50 dark:bg-white/[0.02] dark:border-white/5 dark:hover:bg-white/[0.05]"
                     >
                        <div className="flex items-center gap-4">
                           {/* Icon based on activity type */}
@@ -627,10 +673,14 @@ export default function DashboardHome() {
                              />
                           </div>
                           <div>
-                             <h4 className="font-bold text-white">{app.title || app.jobTitle || 'Activity'}</h4>
-                             <p className="text-xs text-gray-500">{app.company || 'Unknown'}</p>
+                             <h4 className="font-bold transition-colors duration-300 text-[#1F2937] dark:text-white">
+                               {app.title || app.jobTitle || 'Activity'}
+                             </h4>
+                             <p className="text-xs transition-colors duration-300 text-gray-600 dark:text-gray-500">
+                               {app.company || 'Unknown'}
+                             </p>
                              {app.date && (
-                               <p className="text-xs text-gray-600 mt-0.5">
+                               <p className="text-xs mt-0.5 transition-colors duration-300 text-gray-500 dark:text-gray-600">
                                  {new Date(app.date).toLocaleDateString()} {new Date(app.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                </p>
                              )}
@@ -647,7 +697,7 @@ export default function DashboardHome() {
                     </motion.div>
                  ))}
                  {history.length === 0 && (
-                   <div className="text-center py-8 text-gray-500">
+                   <div className="text-center py-8 transition-colors duration-300 text-gray-600 dark:text-gray-500">
                      <Icon icon="solar:history-bold-duotone" className="text-4xl mx-auto mb-2 opacity-50" />
                      <p>No activity yet</p>
                    </div>
@@ -659,9 +709,11 @@ export default function DashboardHome() {
 
         {/* Received Emails Section */}
         <motion.div variants={item} className="lg:col-span-4 glass-card rounded-[32px] p-8 mt-6">
-          <div className="flex justify-between items-center mb-6">
+            <div className="flex justify-between items-center mb-6">
             <div className="flex items-center gap-3">
-              <h3 className="text-xl font-bold text-white">Inbox</h3>
+              <h3 className="text-xl font-bold transition-colors duration-300 text-[#1F2937] dark:text-white">
+                Inbox
+              </h3>
               {receivedEmails.filter(e => !e.isRead).length > 0 && (
                 <span className="px-2 py-1 rounded-full bg-orange-500 text-white text-xs font-bold">
                   {receivedEmails.filter(e => !e.isRead).length} new
@@ -698,10 +750,12 @@ export default function DashboardHome() {
           
           <div className="space-y-4 max-h-[400px] overflow-y-auto">
             {receivedEmails.length === 0 ? (
-              <div className="text-center py-8 text-gray-500">
+              <div className="text-center py-8 transition-colors duration-300 text-gray-600 dark:text-gray-500">
                 <Icon icon="solar:inbox-bold-duotone" className="text-4xl mx-auto mb-2 opacity-50" />
                 <p>No emails yet</p>
-                <p className="text-xs text-gray-600 mt-1">Click "Check Emails" to fetch new messages</p>
+                <p className="text-xs mt-1 transition-colors duration-300 text-gray-500 dark:text-gray-600">
+                  Click "Check Emails" to fetch new messages
+                </p>
               </div>
             ) : (
               receivedEmails.map((email, i) => (
@@ -715,12 +769,12 @@ export default function DashboardHome() {
                       ? 'bg-green-500/10 border-green-500/30 hover:bg-green-500/20' 
                       : email.type === 'rejection'
                       ? 'bg-red-500/10 border-red-500/30 hover:bg-red-500/20'
-                      : 'bg-white/[0.02] border-white/5 hover:bg-white/[0.05]'
+                      : 'bg-gray-50/50 border-gray-200/50 hover:bg-gray-100/50 dark:bg-white/[0.02] dark:border-white/5 dark:hover:bg-white/[0.05]'
                   } ${!email.isRead ? 'ring-2 ring-orange-500/30' : ''}`}
                   onClick={async () => {
                     if (!email.isRead && token) {
                       try {
-                        await axios.put(`http://localhost:5001/api/emails/${email.messageId}/read`, {}, {
+                        await axios.put(API_ENDPOINTS.MARK_EMAIL_READ(email.messageId), {}, {
                           headers: { Authorization: `Bearer ${token}` }
                         });
                         setReceivedEmails(prev => prev.map(e => 
@@ -751,20 +805,28 @@ export default function DashboardHome() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2 mb-1">
-                        <h4 className={`font-bold text-base ${email.type === 'interview' ? 'text-green-400' : 'text-white'}`}>
+                        <h4 className={`font-bold text-base ${
+                          email.type === 'interview' 
+                            ? 'text-green-400' 
+                            : 'text-[#1F2937] dark:text-white'
+                        }`}>
                           {email.subject}
                         </h4>
                         {!email.isRead && (
                           <div className="w-2 h-2 rounded-full bg-orange-500 flex-shrink-0 mt-1"></div>
                         )}
                       </div>
-                      <p className="text-xs text-gray-400 mb-2">{email.from}</p>
+                      <p className="text-xs mb-2 transition-colors duration-300 text-gray-600 dark:text-gray-400">
+                        {email.from}
+                      </p>
                       {email.company && (
-                        <p className="text-xs text-gray-500 mb-1">
+                        <p className="text-xs mb-1 transition-colors duration-300 text-gray-600 dark:text-gray-500">
                           {email.company}{email.jobTitle && ` • ${email.jobTitle}`}
                         </p>
                       )}
-                      <p className="text-sm text-gray-300 line-clamp-2">{email.body}</p>
+                      <p className="text-sm line-clamp-2 transition-colors duration-300 text-gray-700 dark:text-gray-300">
+                        {email.body}
+                      </p>
                       <div className="flex items-center gap-3 mt-2">
                         <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
                           email.type === 'interview' ? 'bg-green-500/20 text-green-400' :
@@ -782,7 +844,7 @@ export default function DashboardHome() {
                             High Priority
                           </span>
                         )}
-                        <span className="text-xs text-gray-600">
+                        <span className="text-xs transition-colors duration-300 text-gray-500 dark:text-gray-600">
                           {new Date(email.date).toLocaleDateString()} {new Date(email.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </span>
                       </div>
@@ -802,20 +864,25 @@ export default function DashboardHome() {
             className="mt-8 glass-card rounded-[32px] p-8"
           >
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl font-bold text-white">Uploaded Files</h3>
-              <Icon icon="solar:folder-bold-duotone" className="text-gray-500" />
+              <h3 className="text-xl font-bold transition-colors duration-300 text-[#1F2937] dark:text-white">
+                Uploaded Files
+              </h3>
+              <Icon 
+                icon="solar:folder-bold-duotone" 
+                className="text-gray-600 dark:text-gray-500" 
+              />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {uploadedFiles.map((file, i) => (
                 <motion.a
                   key={i}
-                  href={token ? `http://localhost:5001/${file.path}` : '#'}
+                  href={token ? API_ENDPOINTS.getFileUrl(file.path) : '#'}
                   target="_blank"
                   rel="noopener noreferrer"
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: i * 0.1 }}
-                  className="flex items-center gap-4 p-4 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.05] hover:border-orange-500/30 transition-all group cursor-pointer"
+                  className="flex items-center gap-4 p-4 rounded-2xl border transition-all group cursor-pointer bg-gray-50/50 border-gray-200/50 hover:bg-gray-100/50 hover:border-orange-500/40 dark:bg-white/[0.02] dark:border-white/5 dark:hover:bg-white/[0.05] dark:hover:border-orange-500/30"
                   onClick={(e) => {
                     if (!token) e.preventDefault();
                   }}
@@ -824,15 +891,23 @@ export default function DashboardHome() {
                     <Icon icon="solar:file-text-bold-duotone" width="24" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h4 className="font-bold text-white truncate group-hover:text-orange-400 transition-colors">{file.name}</h4>
-                    <p className="text-xs text-gray-500 truncate">{file.fileName || file.path.split('/').pop()}</p>
+                    <h4 className="font-bold truncate group-hover:text-orange-400 transition-colors text-[#1F2937] dark:text-white">
+                      {file.name}
+                    </h4>
+                    <p className="text-xs truncate transition-colors duration-300 text-gray-600 dark:text-gray-500">
+                      {file.fileName || file.path.split('/').pop()}
+                    </p>
                   </div>
                   <div
                     onClick={(e) => e.stopPropagation()}
-                    className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
+                    className="p-2 rounded-lg transition-colors bg-gray-100/50 hover:bg-gray-200/50 dark:bg-white/5 dark:hover:bg-white/10"
                     title="Download file"
                   >
-                    <Icon icon="solar:download-bold-duotone" width="20" className="text-gray-400 group-hover:text-white" />
+                    <Icon 
+                      icon="solar:download-bold-duotone" 
+                      width="20" 
+                      className="transition-colors text-gray-600 group-hover:text-[#1F2937] dark:text-gray-400 dark:group-hover:text-white"
+                    />
                   </div>
                 </motion.a>
               ))}

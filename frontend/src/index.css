@@ -4,30 +4,57 @@
 
 @layer base {
   :root {
-    --bg-depth: #050505;
-    --glass-border: rgba(255, 255, 255, 0.08);
-    --primary-accent: #FF4D00; /* Primary Orange */
-    --trust-blue: #0066FF; /* Trust & Professionalism */
-    --success-green: #10B981; /* Success & Growth */
+    /* Accent colors (same for both themes) */
+    --primary-accent: #FF4D00;
+    --trust-blue: #0066FF;
+    --success-green: #10B981;
+    
+    /* Light Mode (Default) - RGB values for Tailwind */
+    --background: 250 250 250; /* #FAFAFA */
+    --surface: 255 255 255;    /* #FFFFFF */
+    --text-primary: 31 41 55;  /* #1F2937 */
+    --text-secondary: 75 85 99; /* #4B5563 */
+    --text-tertiary: 107 114 128; /* #6B7280 */
+    --border: 229 231 235;     /* gray-200 */
+  }
+
+  .dark {
+    /* Dark Mode - RGB values for Tailwind */
+    --background: 15 15 15;    /* #0F0F0F */
+    --surface: 21 21 21;       /* #151515 */
+    --text-primary: 255 255 255; /* #FFFFFF */
+    --text-secondary: 209 213 219; /* #D1D5DB gray-300 */
+    --text-tertiary: 156 163 175; /* #9CA3AF gray-400 */
+    --border: 255 255 255;     /* white */
   }
 
   body {
-    @apply bg-[#050505] text-[#E0E0E0] overflow-x-hidden antialiased;
-    font-family: 'Inter', sans-serif; /* Ensure you have a clean font loaded */
+    @apply overflow-x-hidden antialiased bg-background text-primary;
+    font-family: 'Inter', sans-serif;
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 }
 
 .glass-panel {
-  @apply bg-[#0A0A0A]/80 backdrop-blur-xl border border-white/5 shadow-2xl;
+  @apply backdrop-blur-xl;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.08);
+}
+
+.dark .glass-panel {
+  background: rgba(10, 10, 10, 0.8);
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
 }
 
 /* Sidebar Active State */
 .nav-item.active {
-  @apply bg-white text-black font-semibold shadow-[0_0_15px_rgba(255,255,255,0.3)];
+  @apply font-semibold bg-[#1F2937] text-white shadow-[0_0_15px_rgba(31,41,55,0.3)] dark:bg-white dark:text-black dark:shadow-[0_0_15px_rgba(255,255,255,0.3)];
 }
 
 .nav-item.inactive {
-  @apply text-gray-500 hover:text-white hover:bg-white/5;
+  @apply transition-all duration-300 text-gray-500 hover:text-[#1F2937] hover:bg-gray-100/50 dark:hover:text-white dark:hover:bg-white/5;
 }
 
 /* --- UTILITIES --- */
@@ -36,16 +63,29 @@
 .bg-noise {
   position: fixed;
   top: 0; left: 0; width: 100%; height: 100%;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
   pointer-events: none;
   z-index: 50;
 }
 
+.bg-noise {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.02'/%3E%3C/svg%3E");
+}
+
+.dark .bg-noise {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+}
+
 /* 2. High-End Glassmorphism */
 .glass-card {
+  @apply backdrop-blur-xl transition-all duration-300;
+  background: linear-gradient(180deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.9) 100%);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.08);
+}
+
+.dark .glass-card {
   background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%);
-  backdrop-filter: blur(20px);
-  border: 1px solid var(--glass-border);
+  border-color: rgba(255, 255, 255, 0.08);
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
 }
 
@@ -70,9 +110,30 @@
 
 /* Custom Scrollbar (fallback for browsers that need it) */
 ::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: #050505; }
-::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
-::-webkit-scrollbar-thumb:hover { background: #555; }
+
+::-webkit-scrollbar-track {
+  background: #FAFAFA;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #050505;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #D1D5DB;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #333;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #9CA3AF;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
 
 /* Border Beam Animation for Buttons */
 @keyframes border-beam {
@@ -140,23 +201,16 @@
 
 /* Typewriter Effect with Blinking Cursor */
 .typewriter-text {
-  display: inline-block;
-  color: white !important;
+  @apply inline-block relative z-10;
   opacity: 1 !important;
   visibility: visible !important;
-  position: relative;
-  z-index: 1;
-  /* Ensure text is always visible */
   min-width: 0;
   white-space: pre-wrap;
+  color: #1F2937 !important;
 }
 
-/* Ensure parent doesn't hide it */
-h1 .typewriter-text,
-.typewriter-text {
-  color: rgb(255, 255, 255) !important;
-  opacity: 1 !important;
-  visibility: visible !important;
+.dark .typewriter-text {
+  color: white !important;
 }
 
 .typewriter-cursor {
@@ -247,19 +301,31 @@ h1 .typewriter-text,
   inset: -1px;
   border-radius: inherit;
   padding: 1px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 1;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+.flashlight-border::before {
+  background: radial-gradient(
+    circle 150px at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    rgba(255, 77, 0, 0.4) 0%,
+    rgba(255, 77, 0, 0.15) 30%,
+    transparent 60%
+  );
+}
+
+.dark .flashlight-border::before {
   background: radial-gradient(
     circle 150px at var(--mouse-x, 50%) var(--mouse-y, 50%),
     rgba(255, 77, 0, 0.5) 0%,
     rgba(255, 77, 0, 0.2) 30%,
     transparent 60%
   );
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  z-index: 1;
 }
 
 .flashlight-border:hover::before {

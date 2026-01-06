@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useContext } from 'react';
 import SwipeableCard from '../components/SwipeableCard';
 import axios from 'axios';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Icon } from '@iconify/react';
 import { AuthContext } from '../App';
 import DashboardLayout from '../layouts/DashboardLayout';
+import { API_ENDPOINTS } from '../config/api';
 
 export default function Discover() {
   const { setToken } = useContext(AuthContext);
@@ -36,7 +37,7 @@ export default function Discover() {
     setIsAnalyzing(true);
     try {
       const res = await axios.post(
-        'http://localhost:5001/api/analyze-jobs',
+        API_ENDPOINTS.ANALYZE_JOBS,
         { text: pastedText },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -69,7 +70,7 @@ export default function Discover() {
         setApplyingJob(job);
         setApplicationStatus('sending');
         try {
-          await axios.post('http://localhost:5001/api/apply', 
+          await axios.post(API_ENDPOINTS.APPLY_JOB, 
             { 
               jobTitle: job.title, 
               company: job.company,
@@ -161,25 +162,50 @@ export default function Discover() {
         </button>
       </motion.div>
       
-      <div className="h-full w-full bg-[#050505] relative flex flex-col items-center justify-center overflow-hidden pt-20 pb-32">
+      <div className="h-full w-full bg-[#050505] relative flex flex-col items-center overflow-y-auto overflow-x-hidden pt-20 pb-20">
          <div className="bg-noise"></div>
          
-         {/* Background Atmosphere */}
-         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-gray-800/20 via-[#050505] to-[#050505]"></div>
+         {/* Enhanced Background Atmosphere */}
+         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,_var(--tw-gradient-stops))] from-orange-500/10 via-transparent to-[#050505]"></div>
+         <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,_var(--tw-gradient-stops))] from-blue-500/10 via-transparent to-[#050505]"></div>
+         
+         {/* Animated Gradient Orbs */}
+         <motion.div 
+           animate={{ 
+             scale: [1, 1.2, 1],
+             x: [0, 50, 0],
+             y: [0, 30, 0]
+           }}
+           transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+           className="absolute top-20 left-1/4 w-96 h-96 bg-orange-500/10 rounded-full blur-[100px] -z-10"
+         />
+         <motion.div 
+           animate={{ 
+             scale: [1, 1.3, 1],
+             x: [0, -40, 0],
+             y: [0, -20, 0]
+           }}
+           transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+           className="absolute bottom-20 right-1/4 w-80 h-80 bg-blue-500/10 rounded-full blur-[90px] -z-10"
+         />
 
          {/* Live Opportunities Badge */}
          <motion.div 
            initial={{ opacity: 0, y: -20 }}
            animate={{ opacity: 1, y: 0 }}
-           className="relative z-20 text-center mb-6"
+           className="relative z-20 text-center mb-8"
          >
-           <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-xl shadow-lg">
-              <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(255,77,0,0.8)]"></div>
-              <span className="text-xs font-bold uppercase tracking-widest text-gray-300">Live Opportunities</span>
+           <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-gradient-to-r from-orange-500/20 via-orange-500/10 to-transparent border border-orange-500/30 backdrop-blur-2xl shadow-[0_0_30px_rgba(255,77,0,0.3)]">
+              <motion.div 
+                animate={{ scale: [1, 1.2, 1] }}
+                transition={{ duration: 2, repeat: Infinity }}
+                className="w-2.5 h-2.5 bg-orange-500 rounded-full shadow-[0_0_12px_rgba(255,77,0,1)]"
+              ></motion.div>
+              <span className="text-sm font-bold uppercase tracking-widest text-orange-400">Live Opportunities</span>
            </div>
          </motion.div>
 
-       <div className="relative w-full max-w-md h-[680px] z-10">
+       <div className="relative w-full max-w-xl mx-auto z-10 mb-28 px-4">
          {jobs.length === 0 && !isAnalyzing && (
            <motion.div
              initial={{ opacity: 0, scale: 0.9 }}
@@ -226,97 +252,126 @@ export default function Discover() {
              preventSwipe={['up', 'down']}
            >
              <motion.div 
-               whileHover={{ scale: 1.02 }}
-               onClick={() => handleCardClick(job)}
-               className="relative w-full h-full rounded-3xl overflow-hidden border border-white/20 shadow-2xl bg-gradient-to-br from-[#1a1a1a] to-[#0a0a0a] group cursor-pointer"
+               whileHover={{ scale: 1.01, y: -4 }}
+               className="relative w-full rounded-[32px] overflow-hidden border border-white/20 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.8)] bg-gradient-to-br from-[#1a1a1a] via-[#151515] to-[#0a0a0a] group"
              >
-               {/* Background Gradient */}
-               <div className="absolute inset-0 bg-gradient-to-br from-orange-500/10 via-transparent to-blue-500/10"></div>
+               {/* Animated Background Gradient */}
+               <div className="absolute inset-0 bg-gradient-to-br from-orange-500/15 via-transparent to-blue-500/15"></div>
+               <motion.div 
+                 animate={{ 
+                   backgroundPosition: ['0% 0%', '100% 100%'],
+                 }}
+                 transition={{ duration: 20, repeat: Infinity, repeatType: 'reverse' }}
+                 className="absolute inset-0 bg-gradient-to-br from-orange-500/5 via-purple-500/5 to-blue-500/5 opacity-50"
+                 style={{ backgroundSize: '200% 200%' }}
+               ></motion.div>
+               
+               {/* Subtle Grid Pattern */}
+               <div className="absolute inset-0 opacity-[0.03]" style={{
+                 backgroundImage: `linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
+                                   linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)`,
+                 backgroundSize: '40px 40px'
+               }}></div>
                
                {/* Card Content */}
-               <div className="relative h-full p-8 flex flex-col justify-between z-10">
+               <div className="relative p-8 flex flex-col z-10">
                   {/* Top Row */}
-                  <div className="flex justify-between items-start">
-                     <div className="px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center gap-2 shadow-lg">
+                  <div className="flex justify-between items-start mb-6">
+                     <motion.div 
+                       whileHover={{ scale: 1.05 }}
+                       className="px-4 py-2 rounded-full bg-gradient-to-r from-orange-500/20 to-orange-500/10 backdrop-blur-xl border border-orange-500/30 flex items-center gap-2 shadow-[0_0_20px_rgba(255,77,0,0.2)]">
                         <Icon icon="solar:map-point-bold-duotone" className="text-orange-400" width="16"/>
-                        <span className="text-xs font-semibold text-white">{job.location}</span>
-                     </div>
-                     <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-orange-500/20 to-blue-500/20 backdrop-blur-md border border-white/20 flex items-center justify-center shadow-lg">
-                        <Icon 
-                          icon="solar:briefcase-bold-duotone" 
-                          width="28" 
-                          className="text-orange-400"
-                        />
-                     </div>
+                        <span className="text-xs font-bold text-white">{job.location}</span>
+                     </motion.div>
                   </div>
 
-                  {/* Middle Content */}
-                  <div className="flex-1 flex flex-col justify-center">
-                     <h2 className="text-5xl font-bold text-white leading-tight mb-3 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+                  {/* Action Buttons - Top Right Corner */}
+                  <div className="absolute top-6 right-6 flex items-center gap-3 z-20">
+                     <motion.div 
+                       whileHover={{ scale: 1.1, rotate: -10 }}
+                       whileTap={{ scale: 0.9 }}
+                       onClick={(e) => {
+                          e.stopPropagation();
+                          swiped('left', job);
+                       }}
+                       className="h-12 w-12 rounded-full bg-gradient-to-br from-red-500/20 to-red-600/10 border-2 border-red-500/40 flex items-center justify-center text-red-400 cursor-pointer shadow-[0_0_20px_rgba(239,68,68,0.4)] hover:shadow-[0_0_30px_rgba(239,68,68,0.6)] hover:border-red-500/60 transition-all backdrop-blur-xl"
+                     >
+                        <Icon icon="solar:close-circle-bold-duotone" width="24" />
+                     </motion.div>
+                     <motion.div 
+                       whileHover={{ scale: 1.1, rotate: 10 }}
+                       whileTap={{ scale: 0.9 }}
+                       onClick={(e) => {
+                          e.stopPropagation();
+                          swiped('right', job);
+                       }}
+                       className="h-14 w-14 rounded-full bg-gradient-to-br from-white to-gray-100 flex items-center justify-center text-black cursor-pointer shadow-[0_0_25px_rgba(255,255,255,0.5)] hover:shadow-[0_0_40px_rgba(255,255,255,0.7)] transition-all border-2 border-white/20"
+                     >
+                        <Icon icon="solar:heart-bold-duotone" width="28" />
+                     </motion.div>
+                  </div>
+
+                  {/* Main Content */}
+                  <div className="flex-1 flex flex-col mb-6">
+                     <h2 className="text-3xl md:text-4xl font-extrabold text-white leading-tight mb-3 bg-gradient-to-r from-white via-white to-gray-200 bg-clip-text text-transparent break-words">
                         {job.title}
                      </h2>
-                     <p className="text-xl text-gray-300 font-medium mb-4">{job.company}</p>
+                     <p className="text-xl md:text-2xl text-gray-200 font-semibold mb-4 break-words">{job.company}</p>
+                     
                      {job.type && (
-                        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 w-fit">
-                           <Icon icon="solar:clock-circle-bold-duotone" className="text-gray-400" width="14"/>
-                           <span className="text-xs text-gray-400 font-medium">{job.type}</span>
+                        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/8 backdrop-blur-md border border-white/15 w-fit shadow-lg mb-4">
+                           <Icon icon="solar:clock-circle-bold-duotone" className="text-orange-400" width="14"/>
+                           <span className="text-xs text-gray-300 font-semibold">{job.type}</span>
                         </div>
                      )}
-                  </div>
 
-                  {/* Bottom Row */}
-                  <div className="space-y-3">
-                     <div className="flex gap-3">
-                        <div className="flex-1 py-4 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 flex flex-col items-center justify-center shadow-lg">
-                           <span className="text-xs text-gray-400 uppercase tracking-wider mb-1.5 font-semibold">Salary</span>
-                           <span className="text-white font-bold text-xl">{job.salary}</span>
+                     {/* Description Preview */}
+                     {job.description && (
+                        <div className="mb-4">
+                           <p className="text-sm text-gray-300 leading-relaxed line-clamp-3 break-words">
+                              {job.description}
+                           </p>
                         </div>
-                        <motion.button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            swiped('right', job);
-                          }}
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          className="flex-1 py-4 rounded-2xl bg-gradient-to-r from-orange-500 to-orange-600 text-white flex items-center justify-center gap-2 cursor-pointer hover:from-orange-600 hover:to-orange-700 transition-all shadow-lg font-bold text-base"
-                        >
-                           <span>Apply</span>
-                           <Icon icon="solar:arrow-right-up-linear" width="18" />
-                        </motion.button>
+                     )}
+
+                     {/* Salary */}
+                     <div className="py-3 px-4 rounded-xl bg-gradient-to-br from-white/8 to-white/4 backdrop-blur-xl border border-white/15 flex items-center justify-between shadow-[0_4px_16px_rgba(0,0,0,0.2)] mb-4">
+                        <span className="text-xs text-gray-400 uppercase tracking-wider font-bold">Salary</span>
+                        <span className="text-white font-extrabold text-lg break-words">{job.salary}</span>
                      </div>
                   </div>
+
+                  {/* See More Button */}
+                  <motion.button
+                     onClick={(e) => {
+                        e.stopPropagation();
+                        handleCardClick(job);
+                     }}
+                     whileHover={{ scale: 1.02 }}
+                     whileTap={{ scale: 0.98 }}
+                     className="w-full py-3 rounded-xl bg-gradient-to-r from-orange-500/20 to-orange-500/10 border border-orange-500/30 text-orange-400 font-semibold flex items-center justify-center gap-2 hover:from-orange-500/30 hover:to-orange-500/20 transition-all"
+                  >
+                     <span>See More Details</span>
+                     <Icon icon="solar:arrow-right-bold-duotone" width="18" />
+                  </motion.button>
                </div>
                
-               {/* Shine effect on hover */}
-               <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent transform -skew-x-12 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
+               {/* Enhanced Shine effect on hover */}
+               <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none overflow-hidden">
+                  <motion.div 
+                    animate={{ x: ['-200%', '200%'] }}
+                    transition={{ duration: 1.5, repeat: Infinity, repeatDelay: 2 }}
+                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent transform -skew-x-12"
+                  ></motion.div>
                </div>
+               
+               {/* Glow effect */}
+               <div className="absolute -inset-1 bg-gradient-to-r from-orange-500/20 via-blue-500/20 to-purple-500/20 rounded-[40px] blur-xl opacity-0 group-hover:opacity-50 transition-opacity duration-500 -z-10"></div>
              </motion.div>
            </SwipeableCard>
          ))}
        </div>
        
-       {/* Floating Action Bar */}
-       {jobs.length > 0 && (
-         <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex gap-6 z-20 pointer-events-none">
-            <motion.div 
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => jobs.length > 0 && swiped('left', jobs[0])}
-              className="h-16 w-16 rounded-full bg-[#1a1a1a] border border-white/10 flex items-center justify-center text-red-500 cursor-pointer shadow-lg hover:shadow-xl hover:border-red-500/30 transition-all backdrop-blur-sm pointer-events-auto"
-            >
-               <Icon icon="solar:close-circle-bold-duotone" width="32" />
-            </motion.div>
-            <motion.div 
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => jobs.length > 0 && swiped('right', jobs[0])}
-              className="h-16 w-16 rounded-full bg-white flex items-center justify-center text-black cursor-pointer shadow-[0_0_30px_rgba(255,255,255,0.3)] hover:shadow-[0_0_40px_rgba(255,255,255,0.5)] transition-all pointer-events-auto"
-            >
-               <Icon icon="solar:heart-bold-duotone" width="32" />
-            </motion.div>
-         </div>
-       )}
 
        {lastDirection && (
          <motion.div

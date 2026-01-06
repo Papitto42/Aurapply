@@ -1,0 +1,27 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="512" height="512" rx="120" fill="#0F0F0F"/>
+  
+  <defs>
+    <linearGradient id="iconGradient" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FF4D00" />
+      <stop offset="100%" stop-color="#FFA500" />
+    </linearGradient>
+  </defs>
+
+  <g transform="translate(106, 106) scale(5)">
+    <!-- Central Nucleus -->
+    <circle cx="30" cy="30" r="7" fill="white" />
+    
+    <!-- Inner Orbit -->
+    <path d="M15 45C15 45 20 50 30 50C40 50 50 40 50 30" stroke="url(#iconGradient)" stroke-width="6" stroke-linecap="round" />
+    
+    <!-- Outer Orbit -->
+    <path d="M10 25C10 15 20 5 35 5C50 5 60 15 60 30C60 45 50 55 35 55" stroke="url(#iconGradient)" stroke-width="6" stroke-linecap="round" opacity="1" />
+  </g>
+</svg>
+
+
+
+
+
+

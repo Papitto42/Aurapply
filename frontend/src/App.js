@@ -8,6 +8,7 @@ import Analytics from './pages/Analytics';
 import Settings from './pages/Settings';
 import Navbar from './components/Navbar';
 import LoadingScreen from './components/LoadingScreen';
+import { ThemeProvider } from './contexts/ThemeContext';
 
 export const AuthContext = React.createContext(null);
 
@@ -84,13 +85,15 @@ function App() {
   }
 
   return (
-    <AuthContext.Provider value={{ token, setToken: setTokenWithSync }}>
-      <Router>
-        <div className="min-h-screen bg-[#050505] text-[#E0E0E0] font-sans selection:bg-orange-500 selection:text-white" style={{ minHeight: '100vh', backgroundColor: '#050505', color: '#E0E0E0' }}>
-          <AppContent />
-        </div>
-      </Router>
-    </AuthContext.Provider>
+    <ThemeProvider>
+      <AuthContext.Provider value={{ token, setToken: setTokenWithSync }}>
+        <Router>
+          <div className="min-h-screen font-sans selection:bg-orange-500 selection:text-white transition-colors duration-300" style={{ minHeight: '100vh' }}>
+            <AppContent />
+          </div>
+        </Router>
+      </AuthContext.Provider>
+    </ThemeProvider>
   );
 }
 

@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { Icon } from '@iconify/react';
 import { AuthContext } from '../App';
 import DashboardLayout from '../layouts/DashboardLayout';
+import { API_ENDPOINTS } from '../config/api';
 
 export default function Settings() {
   const { setToken } = useContext(AuthContext);
@@ -39,7 +40,7 @@ export default function Settings() {
       setLoading(true);
       setError('');
       try {
-        const res = await axios.get('http://localhost:5001/api/user/profile', {
+        const res = await axios.get(API_ENDPOINTS.USER_PROFILE, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setProfile({
@@ -85,7 +86,7 @@ export default function Settings() {
     const fetchEmailConfig = async () => {
       if (activeTab === 'smtp' && token) {
         try {
-          const res = await axios.get('http://localhost:5001/api/config', {
+          const res = await axios.get(API_ENDPOINTS.CONFIG, {
             headers: { Authorization: `Bearer ${token}` }
           });
           setEmailConfig({
@@ -149,12 +150,11 @@ export default function Settings() {
       const formData = new FormData();
       formData.append(type === 'resume' ? 'resume' : 'coverLetter', file);
       
-      const endpoint = type === 'resume' ? '/api/upload/resume' : '/api/upload/coverletter';
-      
       // REAL UPLOAD - sending actual file to server
       console.log(`[UPLOAD] Starting upload: ${type}, File: ${file.name}, Size: ${file.size} bytes`);
       
-      const res = await axios.post(`http://localhost:5001${endpoint}`, formData, { 
+      const endpoint = type === 'resume' ? API_ENDPOINTS.UPLOAD_CV : API_ENDPOINTS.UPLOAD_COVER_LETTER;
+      const res = await axios.post(endpoint, formData, { 
         headers: { 
           Authorization: `Bearer ${token}`
           // Don't set Content-Type - let axios set it with boundary for multipart/form-data
@@ -276,7 +276,7 @@ export default function Settings() {
       const formData = new FormData();
       formData.append('avatar', avatarFile);
       
-      const res = await axios.post('http://localhost:5001/api/upload/avatar', formData, {
+      const res = await axios.post(API_ENDPOINTS.UPLOAD_AVATAR, formData, {
         headers: { 
           Authorization: `Bearer ${token}`
         },
@@ -329,7 +329,7 @@ export default function Settings() {
     
     try {
       const res = await axios.post(
-        'http://localhost:5001/api/user/profile',
+        API_ENDPOINTS.USER_PROFILE,
         {
           name: profile.name,
           jobTitle: profile.jobTitle,
@@ -441,7 +441,7 @@ export default function Settings() {
 
     try {
       const res = await axios.post(
-        'http://localhost:5001/api/config',
+        API_ENDPOINTS.CONFIG,
         {
           emailUser: emailConfig.emailUser,
           emailPass: emailConfig.emailPass
@@ -556,7 +556,7 @@ export default function Settings() {
                    <div className="relative">
                      {avatarPreview ? (
                        <img 
-                         src={avatarPreview.startsWith('data:') ? avatarPreview : (token ? `http://localhost:5001/${avatarPreview}` : avatarPreview)} 
+                         src={avatarPreview.startsWith('data:') ? avatarPreview : (token ? API_ENDPOINTS.getFileUrl(avatarPreview) : avatarPreview)} 
                          alt="Avatar"
                          className="w-20 h-20 rounded-full object-cover border border-white/10"
                        />
@@ -754,7 +754,7 @@ export default function Settings() {
                    <div className="space-y-3">
                      {uploadedFiles.resume && (
                        <a
-                         href={token ? `http://localhost:5001/${uploadedFiles.resume}` : '#'}
+                         href={token ? API_ENDPOINTS.getFileUrl(uploadedFiles.resume) : '#'}
                          target="_blank"
                          rel="noopener noreferrer"
                          className="flex items-center justify-between p-4 bg-black/50 rounded-lg border border-white/10 hover:border-green-500/30 transition-all group cursor-pointer"
@@ -782,7 +782,7 @@ export default function Settings() {
                      )}
                      {uploadedFiles.coverLetter && (
                        <a
-                         href={token ? `http://localhost:5001/${uploadedFiles.coverLetter}` : '#'}
+                         href={token ? API_ENDPOINTS.getFileUrl(uploadedFiles.coverLetter) : '#'}
                          target="_blank"
                          rel="noopener noreferrer"
                          className="flex items-center justify-between p-4 bg-black/50 rounded-lg border border-white/10 hover:border-green-500/30 transition-all group cursor-pointer"
