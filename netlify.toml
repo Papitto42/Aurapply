@@ -1,11 +1,9 @@
 [build]
-  base = "frontend"
-  command = "npm run build"
-  publish = "build"
+  command = "npm --prefix frontend ci && npm --prefix frontend run build"
+  publish = "frontend/build"
 
 [build.environment]
   CI = "false"
-  NODE_VERSION = "20"
 
 [[redirects]]
   from = "/*"

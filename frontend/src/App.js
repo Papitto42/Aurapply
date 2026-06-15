@@ -1,6 +1,5 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import LandingPage from './pages/LandingPage';
 import AuthPage from './pages/AuthPage';
 import DashboardHome from './pages/DashboardHome';
@@ -10,72 +9,12 @@ import Settings from './pages/Settings';
 import Navbar from './components/Navbar';
 import LoadingScreen from './components/LoadingScreen';
 import { ThemeProvider } from './contexts/ThemeContext';
-import { API_ENDPOINTS } from './config/api';
 
 export const AuthContext = React.createContext(null);
 
 function AppContent() {
   const location = useLocation();
-  const navigate = useNavigate();
-  const { token, setToken } = useContext(AuthContext);
   const DEV_MODE = true;
-
-  // Auto-login on mount if no token
-  useEffect(() => {
-    // If already logged in and on auth page, redirect to dashboard
-    if (token && location.pathname === '/auth') {
-      navigate('/dashboard', { replace: true });
-      return;
-    }
-
-    // Auto-login if no token
-    if (!token) {
-      const autoLogin = async () => {
-        try {
-          // Try to auto-login with test account
-          const response = await axios.post(API_ENDPOINTS.LOGIN, {
-            email: 'test@aurapply.com',
-            password: 'test123'
-          }, { timeout: 5000 });
-          
-          if (response.data && response.data.token) {
-            setToken(response.data.token);
-            if (location.pathname === '/' || location.pathname === '/auth') {
-              navigate('/dashboard', { replace: true });
-            }
-          }
-        } catch (e) {
-          // If auto-login fails, try to register first, then login
-          try {
-            await axios.post(API_ENDPOINTS.REGISTER, {
-              email: 'test@aurapply.com',
-              password: 'test123',
-              name: 'Test User'
-            }, { timeout: 5000 });
-            
-            // Now login
-            const loginResponse = await axios.post(API_ENDPOINTS.LOGIN, {
-              email: 'test@aurapply.com',
-              password: 'test123'
-            }, { timeout: 5000 });
-            
-            if (loginResponse.data && loginResponse.data.token) {
-              setToken(loginResponse.data.token);
-              if (location.pathname === '/' || location.pathname === '/auth') {
-                navigate('/dashboard', { replace: true });
-              }
-            }
-          } catch (regError) {
-            // If both fail, just continue - backend may not be ready yet
-            console.log('Auto-login will retry when backend is ready');
-          }
-        }
-      };
-      
-      // Delay to let backend start
-      setTimeout(autoLogin, 2000);
-    }
-  }, [token, location.pathname, setToken, navigate]);
 
   return (
     <>
