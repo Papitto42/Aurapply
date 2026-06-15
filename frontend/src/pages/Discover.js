@@ -21,7 +21,10 @@ export default function Discover() {
   const [showJobDetail, setShowJobDetail] = useState(false);
   const [applicationStatus, setApplicationStatus] = useState(null); // 'sending', 'success', 'error'
   const [applyingJob, setApplyingJob] = useState(null);
+  const [employmentType, setEmploymentType] = useState('Full-time');
   const token = localStorage.getItem('token');
+
+  const employmentOptions = ['Full-time', 'Part-time', 'Internship'];
 
   const analyzeText = async () => {
     if (!pastedText.trim()) {
@@ -74,7 +77,8 @@ export default function Discover() {
             { 
               jobTitle: job.title, 
               company: job.company,
-              jobDescription: job.description || ''
+              jobDescription: job.description || '',
+              employmentType: employmentType
             }, 
             { headers: { Authorization: `Bearer ${token}` } }
           );
@@ -150,6 +154,21 @@ export default function Discover() {
         >
           <Icon icon="solar:document-add-bold-duotone" width="20" height="20" />
         </button>
+        <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-gray-300">
+          <Icon icon="solar:clock-circle-bold-duotone" width="16" className="text-orange-400" />
+          <select
+            value={employmentType}
+            onChange={(e) => setEmploymentType(e.target.value)}
+            className="bg-transparent text-xs font-semibold text-gray-200 outline-none"
+            aria-label="Application type"
+          >
+            {employmentOptions.map(option => (
+              <option key={option} value={option} className="text-black">
+                {option}
+              </option>
+            ))}
+          </select>
+        </div>
         <button 
           onClick={() => { 
             localStorage.removeItem('token'); 
@@ -551,7 +570,7 @@ export default function Discover() {
                  </button>
                </div>
 
-               <div className="grid grid-cols-2 gap-4 mb-6">
+              <div className="grid grid-cols-2 gap-4 mb-6">
                  <div className="p-4 rounded-2xl bg-white/5 border border-white/10">
                    <p className="text-xs text-gray-400 uppercase tracking-wider mb-1">Location</p>
                    <p className="text-white font-bold">{selectedJob.location}</p>
@@ -571,6 +590,25 @@ export default function Discover() {
                    </div>
                  )}
                </div>
+              
+              <div className="mb-6">
+                <p className="text-xs text-gray-400 uppercase tracking-wider mb-2">Apply As</p>
+                <div className="flex items-center gap-3 p-3 rounded-2xl bg-white/5 border border-white/10">
+                  <Icon icon="solar:clock-circle-bold-duotone" className="text-orange-400" width="18" />
+                  <select
+                    value={employmentType}
+                    onChange={(e) => setEmploymentType(e.target.value)}
+                    className="flex-1 bg-transparent text-white font-semibold outline-none"
+                    aria-label="Apply as"
+                  >
+                    {employmentOptions.map(option => (
+                      <option key={option} value={option} className="text-black">
+                        {option}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
 
                {selectedJob.description && (
                  <div className="mb-6">

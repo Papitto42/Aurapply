@@ -21,13 +21,22 @@ const corsOptions = {
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
     
+    // In development, allow any localhost port (3000, 3001, etc.)
+    if (process.env.NODE_ENV === 'development' || !process.env.NODE_ENV) {
+      if (origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:')) {
+        return callback(null, true);
+      }
+    }
+    
     const allowedOrigins = [
       'http://localhost:3000',
+      'http://localhost:3001',
       'http://127.0.0.1:3000',
+      'http://127.0.0.1:3001',
       process.env.CORS_ORIGIN
     ].filter(Boolean);
     
-    if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV === 'development') {
+    if (allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
@@ -907,11 +916,14 @@ ${user.name || 'Appiah Elliot Richard'}`;
 // Apply (Send Email)
 app.post('/api/apply', verifyToken, async (req, res) => {
   try {
-    const { jobTitle, company, recruiterEmail, jobDescription } = req.body;
+    const { jobTitle, company, recruiterEmail, jobDescription, employmentType } = req.body;
+    const normalizedEmploymentType = employmentType && typeof employmentType === 'string'
+      ? employmentType.trim()
+      : '';
     
     // DEV MODE: Just log and return success
     if (mongoose.connection.readyState !== 1) {
-      console.log(`[DEV MODE] Application sent for ${jobTitle} at ${company}`);
+      console.log(`[DEV MODE] Application sent for ${jobTitle} at ${company}${normalizedEmploymentType ? ` (${normalizedEmploymentType})` : ''}`);
       return res.json({ message: "Application sent successfully (DEV MODE)" });
     }
     
@@ -925,11 +937,15 @@ app.post('/api/apply', verifyToken, async (req, res) => {
     
     // Generate AI subject line
     let subject = `Application for ${jobTitle}`;
+    if (normalizedEmploymentType) {
+      subject = `Application for ${jobTitle} (${normalizedEmploymentType})`;
+    }
     if (genAI && jobTitle && company) {
       try {
         const subjectPrompt = `Generate a professional, concise email subject line for a job application. 
 Job Title: ${jobTitle}
 Company: ${company}
+Employment Type: ${normalizedEmploymentType || 'Not specified'}
 
 Return only the subject line, nothing else. Make it professional and attention-grabbing. Do NOT include the applicant's name.`;
 
@@ -961,12 +977,16 @@ ${subjectPrompt}`;
       attachments.push({ path: resumePath, filename: path.basename(resumePath) });
     }
 
+    const typedCoverLetter = normalizedEmploymentType
+      ? `${coverLetterBody}\n\nPosition Type: ${normalizedEmploymentType}`
+      : coverLetterBody;
+
     const mailOptions = {
       from: user.emailConfig.user,
       to: "appiahelliot1@gmail.com", // Always send to this email
       subject: subject,
-      text: coverLetterBody,
-      html: coverLetterBody.replace(/\n/g, '<br>'), // Simple HTML conversion
+      text: typedCoverLetter,
+      html: typedCoverLetter.replace(/\n/g, '<br>'), // Simple HTML conversion
       attachments: attachments
     };
 
@@ -978,6 +998,7 @@ ${subjectPrompt}`;
     user.applications.push({ 
       jobTitle, 
       company, 
+      employmentType: normalizedEmploymentType,
       status: 'Sent',
       date: new Date()
     });

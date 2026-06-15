@@ -32,8 +32,14 @@ export default function AuthPage() {
     }
     
     const endpoint = isLogin ? API_ENDPOINTS.LOGIN : API_ENDPOINTS.REGISTER;
+    
+    // Prepare payload - login only needs email and password
+    const payload = isLogin 
+      ? { email: form.email.trim(), password: form.password }
+      : { email: form.email.trim(), password: form.password, name: form.name.trim() };
+    
     try {
-      const res = await axios.post(endpoint, form, {
+      const res = await axios.post(endpoint, payload, {
         headers: {
           'Content-Type': 'application/json',
         },
@@ -55,6 +61,9 @@ export default function AuthPage() {
       }
     } catch (err) {
       console.error('Login/Register Error:', err);
+      console.error('Error response:', err.response?.data);
+      console.error('Error status:', err.response?.status);
+      
       let errorMessage = "An error occurred. Please try again.";
       
       if (err.code === 'ECONNREFUSED' || err.message.includes('Network Error') || err.code === 'ERR_NETWORK') {
@@ -62,9 +71,17 @@ export default function AuthPage() {
       } else if (err.code === 'ECONNABORTED' || err.message.includes('timeout')) {
         errorMessage = "Request timed out. Please check your connection and try again.";
       } else if (err.response?.data?.error) {
+        // Use the exact error message from the server
         errorMessage = err.response.data.error;
       } else if (err.response?.status === 400) {
-        errorMessage = "Invalid credentials. Please check your email and password.";
+        // More specific error for 400
+        if (err.response?.data?.error) {
+          errorMessage = err.response.data.error;
+        } else {
+          errorMessage = "Invalid credentials. Please check your email and password. If you haven't created an account yet, please register first.";
+        }
+      } else if (err.response?.status === 503) {
+        errorMessage = "Database connection failed. Please make sure MongoDB is running.";
       } else if (err.response?.status === 500) {
         errorMessage = "Server error. Please try again later.";
       } else if (err.message) {

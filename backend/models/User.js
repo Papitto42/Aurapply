@@ -22,6 +22,7 @@ const UserSchema = new mongoose.Schema({
   applications: [{
     jobTitle: String,
     company: String,
+    employmentType: String,
     status: { type: String, default: 'Sent' },
     date: { type: Date, default: Date.now }
   }],
