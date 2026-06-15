@@ -380,8 +380,8 @@ function DeveloperTerminal({ isActive = false, onInteractionStart, onInteraction
         'Key Features:',
         '',
         '  ✓ AI-Powered Matching - Advanced algorithms analyze job postings',
-        '  ✓ Auto-Fill Applications - Automatically fill 50+ job boards',
-        '  ✓ Real-Time Analytics - Track success rates and optimize strategy',
+        '  ✓ Auto-Fill Applications - Reuse your profile across applications',
+        '  ✓ Real-Time Analytics - Track what you sent and what came back',
         '  ✓ Privacy First - Encrypted data, never shared',
         '  ✓ Lightning Fast - Submit applications in seconds',
         '  ✓ Fully Customizable - Tailor every aspect to your preferences',
@@ -391,14 +391,13 @@ function DeveloperTerminal({ isActive = false, onInteractionStart, onInteraction
     },
     stats: {
       output: [
-        'Platform Statistics:',
+        'Your dashboard tracks:',
         '',
-        '  • 50+ Job Platforms Integrated',
-        '  • 10K+ Active Users',
-        '  • 500K+ Applications Sent',
-        '  • 98% Success Rate',
+        '  • Applications you have sent',
+        '  • Uploads and profile updates',
+        '  • Incoming job-related emails',
         '',
-        'Join thousands of professionals accelerating their careers!'
+        'Sign in to see your own activity.'
       ]
     },
     commands: {
@@ -796,110 +795,164 @@ function RotatingCard({ cards, onCardClick }) {
 }
 
 // Glow Card Component with Context-Aware Shine Effect + Flashlight
-function GlowCard({ feature, index }) {
+function FeatureCard({ feature, index, className = '' }) {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isHovered, setIsHovered] = useState(false);
   const cardRef = useRef(null);
-
   const rafIdRef = useRef(null);
 
   const handleMouseMove = (e) => {
     if (!cardRef.current) return;
     if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
-    
+
     rafIdRef.current = requestAnimationFrame(() => {
-    const rect = cardRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    setMousePosition({ x, y });
-      
-      // Update CSS variables for flashlight border on the card element
-      const cardElement = cardRef.current;
-      cardElement.style.setProperty('--mouse-x', `${x}px`);
-      cardElement.style.setProperty('--mouse-y', `${y}px`);
+      const rect = cardRef.current.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      setMousePosition({ x, y });
+      cardRef.current.style.setProperty('--mouse-x', `${x}px`);
+      cardRef.current.style.setProperty('--mouse-y', `${y}px`);
     });
   };
-  
-  useEffect(() => {
-    return () => {
-      if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
-    };
+
+  useEffect(() => () => {
+    if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
   }, []);
+
+  const isHero = feature.hero;
 
   return (
     <motion.div
       ref={cardRef}
-      initial={{ opacity: 0, y: 30 }}
+      initial={{ opacity: 0, y: 32 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-50px" }}
-      transition={{ delay: index * 0.1, duration: 0.6, fillMode: 'both' }}
-      whileHover={{ scale: 1.05, y: -5 }}
+      viewport={{ once: true, margin: '-60px' }}
+      transition={{ delay: index * 0.08, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+      whileHover={{ y: -6 }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onMouseMove={handleMouseMove}
-      className={`relative p-8 rounded-2xl border backdrop-blur-xl hover:border-orange-500/40 transition-all overflow-hidden flashlight-effect flashlight-border bg-gradient-to-br ${feature.gradient} border-gray-200/50 dark:border-white/20`}
+      className={`group relative overflow-hidden rounded-3xl border border-white/10 bg-[#0c0c0c]/80 backdrop-blur-xl flashlight-effect flashlight-border transition-shadow duration-500 hover:shadow-[0_20px_60px_-20px_rgba(255,107,43,0.25)] ${className}`}
     >
-      {/* Flashlight Background Effect */}
-      <div 
-        className="absolute pointer-events-none transition-opacity duration-300"
+      {/* Accent wash */}
+      <div
+        className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} opacity-60 transition-opacity duration-500 group-hover:opacity-100`}
+      />
+      <div className="absolute inset-0 bg-[#0a0a0a]/70" />
+
+      {/* Corner grid texture */}
+      <div
+        className="absolute inset-0 opacity-[0.04] pointer-events-none"
         style={{
-          left: `${mousePosition.x}px`,
-          top: `${mousePosition.y}px`,
-          transform: 'translate(-50%, -50%)',
-          width: '300px',
-          height: '300px',
-          background: 'radial-gradient(circle, rgba(0, 0, 0, 0.05) 0%, transparent 70%)',
-          borderRadius: '50%',
-          filter: 'blur(40px)',
-          opacity: isHovered ? 1 : 0,
-          zIndex: 1,
+          backgroundImage: `linear-gradient(${feature.accent}40 1px, transparent 1px), linear-gradient(90deg, ${feature.accent}40 1px, transparent 1px)`,
+          backgroundSize: '24px 24px',
         }}
       />
-      
-      <div className="absolute inset-0 rounded-2xl bg-white/60 dark:bg-[#151515]/60" />
-      
-      {/* Glow Effect - Duplicated Icon that follows cursor */}
-      <div 
-        className="absolute pointer-events-none transition-opacity duration-300"
-        style={{
-          left: `${mousePosition.x}px`,
-          top: `${mousePosition.y}px`,
-          transform: 'translate(-50%, -50%) scale(3)',
-          opacity: isHovered ? 0.4 : 0,
-          filter: 'url(#glow-filter-strong)',
-          zIndex: 2,
-        }}
-      >
-        <Icon 
-          icon={feature.icon} 
-          className="text-3xl text-orange-500"
-          style={{ 
-            filter: 'drop-shadow(0 0 20px rgba(255, 77, 0, 0.8))',
-          }}
-        />
-      </div>
 
-      <div className="relative z-10">
-        <div className="w-14 h-14 rounded-xl flex items-center justify-center mb-6 border relative bg-gray-100/50 border-gray-300/50 dark:bg-white/15 dark:border-white/30">
-          {/* Original Icon */}
-          <Icon icon={feature.icon} className="text-3xl text-orange-500 relative z-10" />
-          {/* Duplicated Glow Icon - subtle movement */}
-          <Icon 
-            icon={feature.icon} 
-            className="text-3xl text-orange-500 absolute inset-0 flex items-center justify-center transition-all duration-300"
+      {/* Cursor glow */}
+      <div
+        className="absolute pointer-events-none transition-opacity duration-300 rounded-full"
+        style={{
+          left: mousePosition.x,
+          top: mousePosition.y,
+          transform: 'translate(-50%, -50%)',
+          width: isHero ? 360 : 260,
+          height: isHero ? 360 : 260,
+          background: `radial-gradient(circle, ${feature.accent}30 0%, transparent 70%)`,
+          opacity: isHovered ? 1 : 0,
+        }}
+      />
+
+      {/* Top accent line */}
+      <div
+        className="absolute top-0 left-0 right-0 h-px opacity-60"
+        style={{ background: `linear-gradient(90deg, transparent, ${feature.accent}, transparent)` }}
+      />
+
+      <div className={`relative z-10 flex flex-col h-full ${isHero ? 'p-8 md:p-10' : 'p-6 md:p-7'}`}>
+        <div className="flex items-start justify-between gap-4 mb-6">
+          <div className="flex items-center gap-3">
+            <span
+              className="text-[10px] font-mono tracking-[0.2em] uppercase px-2.5 py-1 rounded-full border"
+              style={{
+                color: feature.accent,
+                borderColor: `${feature.accent}40`,
+                background: `${feature.accent}12`,
+              }}
+            >
+              {feature.tag}
+            </span>
+            <span className="text-[11px] font-mono text-gray-500">
+              {String(index + 1).padStart(2, '0')}
+            </span>
+          </div>
+          <div
+            className={`rounded-2xl flex items-center justify-center border transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3 ${
+              isHero ? 'w-16 h-16' : 'w-12 h-12'
+            }`}
             style={{
-              transform: `translate(${(mousePosition.x - 56) * 0.1}px, ${(mousePosition.y - 28) * 0.1}px) scale(1.5)`,
-              filter: 'url(#glow-filter)',
-              opacity: isHovered ? 0.6 : 0,
+              background: `${feature.accent}15`,
+              borderColor: `${feature.accent}35`,
+              boxShadow: isHovered ? `0 0 30px ${feature.accent}40` : 'none',
             }}
-          />
+          >
+            <Icon icon={feature.icon} className={isHero ? 'text-3xl' : 'text-2xl'} style={{ color: feature.accent }} />
+          </div>
         </div>
-        <h3 className="text-xl font-semibold mb-3 text-[#1F2937] dark:text-white">
+
+        <h3 className={`font-semibold tracking-tight text-white mb-3 ${isHero ? 'text-2xl md:text-3xl' : 'text-lg md:text-xl'}`}>
           {feature.title}
         </h3>
-        <p className="leading-relaxed text-gray-600 dark:text-gray-400">
+        <p className={`leading-relaxed text-gray-400 flex-1 ${isHero ? 'text-base md:text-lg max-w-md' : 'text-sm md:text-[15px]'}`}>
           {feature.description}
         </p>
+
+        <div className="mt-6 pt-5 border-t border-white/10 flex flex-wrap gap-2">
+          {(feature.highlights || []).map((chip) => (
+            <span
+              key={chip}
+              className="text-[11px] font-medium px-2.5 py-1 rounded-full border"
+              style={{
+                color: feature.accent,
+                borderColor: `${feature.accent}30`,
+                background: `${feature.accent}10`,
+              }}
+            >
+              {chip}
+            </span>
+          ))}
+        </div>
+
+        {isHero && (
+          <div className="mt-6 rounded-2xl border border-white/10 bg-black/40 p-4 overflow-hidden">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
+              <span className="text-xs font-mono text-gray-500">Application flow</span>
+            </div>
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-2">
+              {['Paste listing', 'Review match', 'Send apply'].map((step, i) => (
+                <React.Fragment key={step}>
+                  <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2 flex-1 min-w-0">
+                    <span
+                      className="text-[10px] font-mono w-5 h-5 rounded-full flex items-center justify-center shrink-0"
+                      style={{ background: `${feature.accent}20`, color: feature.accent }}
+                    >
+                      {i + 1}
+                    </span>
+                    <span className="text-xs text-gray-300 truncate">{step}</span>
+                  </div>
+                  {i < 2 && (
+                    <Icon
+                      icon="solar:arrow-right-linear"
+                      className="hidden sm:block text-gray-600 shrink-0"
+                      width={14}
+                    />
+                  )}
+                </React.Fragment>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </motion.div>
   );
@@ -1051,11 +1104,11 @@ export default function LandingPage() {
                 Technology
               </button>
               <button 
-                onClick={() => scrollToSection('stats')}
+                onClick={() => scrollToSection('testimonials')}
                 className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors text-gray-600 hover:text-[#1F2937] hover:bg-gray-100/50 dark:text-gray-300 dark:hover:text-white dark:hover:bg-white/8"
               >
-                <Icon icon="solar:graph-up-bold-duotone" className="text-base" />
-                Stats
+                <Icon icon="solar:chat-round-dots-bold-duotone" className="text-base" />
+                Stories
               </button>
             </div>
 
@@ -1463,150 +1516,101 @@ export default function LandingPage() {
 
       {/* Features Section */}
       <section id="features" className="relative pt-48 pb-32 px-6 max-w-7xl mx-auto z-10">
+        <div className="absolute left-1/2 top-32 -translate-x-1/2 w-[min(900px,90vw)] h-64 bg-orange-500/10 blur-[120px] rounded-full pointer-events-none" />
+
         <motion.div
           initial={{ opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
+          viewport={{ once: true, margin: '-100px' }}
           transition={{ duration: 0.8, fillMode: 'both' }}
-          className="text-center mb-20"
+          className="text-center mb-16 relative"
         >
+          <motion.span
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-orange-500/30 bg-orange-500/10 text-orange-400 text-xs font-mono uppercase tracking-[0.25em] mb-6"
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse" />
+            Capabilities
+          </motion.span>
           <h2 className="text-5xl md:text-6xl font-medium tracking-tight mb-6 text-[#1F2937] dark:text-white">
-            <AnimatedText text="Powerful Features" delay={0} />
+            <AnimatedText text="Powerful " delay={0} />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-orange-500 to-amber-300">
+              <AnimatedText text="Features" delay={0.15} />
+            </span>
           </h2>
-              <p className="text-xl max-w-2xl mx-auto text-gray-700 dark:text-gray-300">
-            <AnimatedText text="Everything you need to streamline your job search process" delay={0.3} />
+          <p className="text-lg md:text-xl max-w-2xl mx-auto text-gray-600 dark:text-gray-400">
+            <AnimatedText text="Built for speed, precision, and control — not another generic job board." delay={0.3} />
           </p>
         </motion.div>
 
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-6 gap-4 md:gap-5 auto-rows-fr">
           {[
             {
               icon: 'solar:magic-stick-3-bold-duotone',
               title: 'AI-Powered Matching',
-              description: 'Advanced algorithms analyze job postings and match them with your profile automatically.',
-              gradient: 'from-orange-500/20 to-red-500/20'
+              description: 'Paste a job listing or browse roles — the engine extracts titles, companies, and requirements so you can decide fast.',
+              gradient: 'from-orange-500/25 via-red-500/10 to-transparent',
+              accent: '#ff6b2b',
+              tag: 'Intelligence',
+              highlights: ['Job text parsing', 'Role extraction', 'Swipe to decide'],
+              hero: true,
+              className: 'md:col-span-4 md:row-span-2 min-h-[340px]',
             },
             {
               icon: 'solar:document-text-bold-duotone',
               title: 'Auto-Fill Applications',
-              description: 'Automatically fill out applications across 50+ job boards with your saved information.',
-              gradient: 'from-trust-blue/20 to-cyan-500/20'
+              description: 'Upload your resume once. AurApply attaches it and your cover letter when you apply.',
+              gradient: 'from-cyan-500/20 via-blue-500/10 to-transparent',
+              accent: '#38bdf8',
+              tag: 'Automation',
+              highlights: ['Resume upload', 'Cover letter', 'One-click send'],
+              className: 'md:col-span-2 min-h-[200px]',
             },
             {
               icon: 'solar:graph-up-bold-duotone',
               title: 'Real-Time Analytics',
-              description: 'Track your application success rate, response times, and optimize your strategy.',
-              gradient: 'from-purple-500/20 to-pink-500/20'
+              description: 'See every application you sent, when it went out, and track responses in one place.',
+              gradient: 'from-violet-500/20 via-fuchsia-500/10 to-transparent',
+              accent: '#a78bfa',
+              tag: 'Insights',
+              highlights: ['Application history', 'Status tracking', 'Activity feed'],
+              className: 'md:col-span-2 min-h-[200px]',
             },
             {
               icon: 'solar:shield-check-bold-duotone',
               title: 'Privacy First',
-              description: 'Your data is encrypted and stored securely. We never share your information.',
-              gradient: 'from-success-green/20 to-emerald-500/20'
+              description: 'Your documents and email config stay on your account. Nothing gets sold or shared.',
+              gradient: 'from-emerald-500/20 via-green-500/10 to-transparent',
+              accent: '#34d399',
+              tag: 'Security',
+              highlights: ['Encrypted storage', 'Your data', 'You control sends'],
+              className: 'md:col-span-2 min-h-[200px]',
             },
             {
               icon: 'solar:rocket-2-bold-duotone',
               title: 'Lightning Fast',
-              description: 'Submit applications in seconds. What used to take hours now takes minutes.',
-              gradient: 'from-yellow-500/20 to-orange-500/20'
+              description: 'Discover roles, pick full-time or internship, and fire off an application without rebuilding the same email every time.',
+              gradient: 'from-amber-500/20 via-yellow-500/10 to-transparent',
+              accent: '#fbbf24',
+              tag: 'Speed',
+              highlights: ['Swipe apply', 'Employment type', 'Templates'],
+              className: 'md:col-span-2 min-h-[200px]',
             },
             {
               icon: 'solar:settings-bold-duotone',
               title: 'Fully Customizable',
-              description: 'Tailor every aspect of your applications to match your preferences and style.',
-              gradient: 'from-indigo-500/20 to-purple-500/20'
-            }
+              description: 'Tune your profile, cover letter, employment type, and Gmail setup to match how you actually job hunt.',
+              gradient: 'from-indigo-500/20 via-purple-500/10 to-transparent',
+              accent: '#818cf8',
+              tag: 'Control',
+              highlights: ['Profile & assets', 'SMTP setup', 'Per-role tweaks'],
+              className: 'md:col-span-2 min-h-[200px]',
+            },
           ].map((feature, i) => (
-            <GlowCard key={i} feature={feature} index={i} />
+            <FeatureCard key={feature.title} feature={feature} index={i} className={feature.className} />
           ))}
-        </div>
-      </section>
-
-      {/* Logos Marquee Section */}
-      <section className="relative py-16 px-6 max-w-7xl mx-auto z-10">
-        <motion.div
-          initial={{ filter: 'blur(10px)', y: 30 }}
-          whileInView={{ filter: 'blur(0px)', y: 0 }}
-          viewport={{ once: false, margin: "-100px" }}
-          transition={{ duration: 0.8, fillMode: 'both' }}
-          className="text-center mb-12"
-        >
-          <p className="text-sm uppercase tracking-wider mb-8 text-gray-600 dark:text-gray-400">
-            Trusted by leading companies
-          </p>
-        </motion.div>
-        <div className="marquee-container">
-          <div className="marquee-content">
-            {[
-              'Vercel', 'Linear', 'Stripe', 'Vercel', 'Linear', 'Stripe',
-              'Vercel', 'Linear', 'Stripe', 'Vercel', 'Linear', 'Stripe'
-            ].map((logo, i) => (
-              <div
-                key={i}
-                className="flex-shrink-0 px-12 flex items-center justify-center"
-              >
-                <div className={`text-4xl font-bold mono-logo transition-all ${
-                  'text-gray-800 hover:text-[#1F2937] dark:text-white dark:hover:text-white'
-                }`}>
-                  {logo}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Stats Section */}
-      <section id="stats" className="relative py-32 px-6 max-w-7xl mx-auto z-10">
-        <div className="relative rounded-3xl border border-white/20 bg-[#151515]/80 backdrop-blur-2xl p-12 md:p-16 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-orange-500/15 via-transparent to-trust-blue/15" />
-          
-          <motion.div
-            initial={{ filter: 'blur(10px)', y: 50 }}
-            whileInView={{ filter: 'blur(0px)', y: 0 }}
-            viewport={{ once: false, margin: "-100px" }}
-            transition={{ duration: 0.8, fillMode: 'both' }}
-            className="text-center mb-16 relative z-10"
-          >
-            <h2 className="text-5xl md:text-6xl font-medium tracking-tight mb-6">
-              <AnimatedText text="By The Numbers" delay={0} />
-            </h2>
-              <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-              <AnimatedText text="Join thousands of professionals accelerating their careers" delay={0.3} />
-            </p>
-          </motion.div>
-
-          <div className="grid md:grid-cols-4 gap-8 relative z-10">
-            {[
-              { number: '50+', label: 'Job Platforms', icon: 'solar:global-bold-duotone' },
-              { number: '10K+', label: 'Active Users', icon: 'solar:users-group-two-rounded-bold-duotone' },
-              { number: '500K+', label: 'Applications Sent', icon: 'solar:document-bold-duotone' },
-              { number: '98%', label: 'Success Rate', icon: 'solar:check-circle-bold-duotone' }
-            ].map((stat, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, scale: 0.8 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true, margin: "-50px" }}
-                transition={{ delay: i * 0.1, duration: 0.5, fillMode: 'both' }}
-                className="text-center"
-              >
-                <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center mx-auto mb-4 border border-white/20">
-                  <Icon icon={stat.icon} className="text-2xl text-orange-500" />
-                </div>
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  whileInView={{ opacity: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ fillMode: 'both' }}
-                  className="text-5xl md:text-6xl font-bold mb-2 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent"
-                >
-                  {stat.number}
-                </motion.div>
-                <div className="text-gray-300 text-lg">{stat.label}</div>
-              </motion.div>
-            ))}
-          </div>
         </div>
       </section>
 
@@ -1682,7 +1686,7 @@ export default function LandingPage() {
           className="text-center mb-20"
         >
           <h2 className="text-5xl md:text-6xl font-medium tracking-tight mb-6 text-[#1F2937] dark:text-white">
-            <AnimatedText text="Trusted By Professionals" delay={0} />
+            <AnimatedText text="From the Community" delay={0} />
           </h2>
               <p className="text-xl text-gray-700 max-w-2xl mx-auto dark:text-gray-300">
             <AnimatedText text="See what our users are saying" delay={0.3} />
@@ -1751,7 +1755,7 @@ export default function LandingPage() {
               Ready to Accelerate Your Career?
             </h2>
               <p className="text-xl text-gray-300 mb-10 max-w-2xl mx-auto">
-              Join thousands of professionals who are already using AurApply to land their dream jobs faster.
+              Start applying smarter — upload your resume, discover roles, and send applications from one place.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <motion.button
@@ -1806,8 +1810,8 @@ export default function LandingPage() {
                   </button>
                 </li>
                 <li>
-                  <button onClick={() => scrollToSection('stats')} className="hover:text-white transition">
-                    Stats
+                  <button onClick={() => scrollToSection('testimonials')} className="hover:text-white transition">
+                    Stories
                   </button>
                 </li>
                 <li><button className="bg-transparent border-none p-0 text-left hover:text-white transition">Pricing</button></li>
