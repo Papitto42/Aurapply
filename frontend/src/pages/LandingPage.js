@@ -1696,25 +1696,25 @@ export default function LandingPage() {
         <div className="grid md:grid-cols-3 gap-6">
           {[
             {
-              name: 'Sarah Chen',
-              role: 'Software Engineer',
-              company: 'ex-Meta',
+              name: 'Ebenezer Tseh',
+              role: 'Engineering Intern',
+              company: 'Google · Harvard',
+              image: '🧑‍🎓',
+              quote: 'Going from Harvard into Google recruiting, I needed something that could keep up with the pace. AurApply made it easy to tailor applications without burning out.'
+            },
+            {
+              name: 'Kaka Cotton',
+              role: 'Intern',
+              company: 'Microsoft',
+              image: '🧑‍💻',
+              quote: 'Microsoft intern recruiting moves fast. AurApply helped me stay organized and send thoughtful applications instead of rushing through the same forms over and over.'
+            },
+            {
+              name: 'Tse Amenuveve',
+              role: 'Intern',
+              company: 'Gusto',
               image: '👩‍💻',
-              quote: 'AurApply transformed my job search. I went from spending 5 hours a week on applications to 30 minutes. Landed my dream role in 2 weeks.'
-            },
-            {
-              name: 'Marcus Johnson',
-              role: 'Product Designer',
-              company: 'ex-Airbnb',
-              image: '👨‍🎨',
-              quote: 'The AI matching is incredible. It found opportunities I never would have discovered manually. This is the future of job hunting.'
-            },
-            {
-              name: 'Emily Rodriguez',
-              role: 'Data Scientist',
-              company: 'ex-Google',
-              image: '👩‍🔬',
-              quote: 'As someone who values efficiency, AurApply is a game-changer. The analytics alone are worth it—I can optimize my strategy in real-time.'
+              quote: 'At Gusto, culture fit matters as much as skills. AurApply let me personalize each application so I wasn\'t sending the same generic cover letter everywhere.'
             }
           ].map((testimonial, i) => (
             <motion.div
